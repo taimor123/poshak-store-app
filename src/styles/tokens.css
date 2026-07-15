@@ -1,0 +1,92 @@
+@theme {
+  /* Maroon Family */
+  --color-maroon-50: #FBF2F4;
+  --color-maroon-100: #F3DEE3;
+  --color-maroon-300: #C98A9B;
+  --color-maroon-500: #8E2D4A;
+  --color-maroon-700: #6E1F38;
+  --color-maroon-800: #571830;
+  --color-maroon-900: #3E1122;
+
+  /* Gold Family */
+  --color-gold-300: #E3C878;
+  --color-gold-500: #C9A24B;
+  --color-gold-700: #9A7830;
+
+  /* Ivory/Neutrals */
+  --color-ivory-50: #FBF8F3;
+  --color-ivory-100: #F4EFE6;
+  --color-ivory-200: #E9E1D3;
+  --color-ivory-400: #B7AC99;
+
+  /* Ink */
+  --color-ink-600: #5C544B;
+  --color-ink-900: #241F1B;
+
+  /* Status Colors */
+  --color-success-50: #EAF4EE;
+  --color-success: #2E7D4F;
+  --color-warning-50: #FBF1E2;
+  --color-warning: #B87514;
+  --color-danger-50: #FBEAE9;
+  --color-danger: #B3261E;
+  --color-info-50: #EAF1F8;
+  --color-info: #31608F;
+
+  /* Typography Scale */
+  --text-display-xl: 2rem;
+  --text-display-xl--line-height: 2.375rem;
+  --text-display-lg: 1.625rem;
+  --text-display-lg--line-height: 2rem;
+  --text-heading-md: 1.25rem;
+  --text-heading-md--line-height: 1.75rem;
+  --text-heading-sm: 1.0625rem;
+  --text-heading-sm--line-height: 1.5rem;
+  --text-body-lg: 1.0625rem;
+  --text-body-lg--line-height: 1.625rem;
+  --text-body-md: 0.9375rem;
+  --text-body-md--line-height: 1.375rem;
+  --text-body-sm: 0.8125rem;
+  --text-body-sm--line-height: 1.125rem;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1rem;
+  --text-price-lg: 1.375rem;
+  --text-price-lg--line-height: 1.75rem;
+  --text-price-md: 0.9375rem;
+  --text-price-md--line-height: 1.25rem;
+
+  /* Font Families */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root {
+  /* Semantic Tokens */
+  --bg-page: var(--color-ivory-50);
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: var(--color-ivory-100);
+  --bg-brand: var(--color-maroon-700);
+  --bg-brand-hover: var(--color-maroon-800);
+  --bg-selected: var(--color-maroon-100);
+  
+  --text-primary: var(--color-ink-900);
+  --text-secondary: var(--color-ink-600);
+  --text-disabled: var(--color-ivory-400);
+  --text-on-brand: var(--color-ivory-50);
+  --text-brand: var(--color-maroon-700);
+  --text-price: var(--color-ink-900);
+  --text-price-sale: var(--color-danger);
+  --text-compare-at: var(--color-ink-600);
+  
+  --border-default: var(--color-ivory-200);
+  --border-focus: var(--color-maroon-500);
+  
+  --accent: var(--color-gold-500);
+  
+  --badge-new-bg: var(--color-maroon-100);
+  --badge-new-text: var(--color-maroon-800);
+  --badge-sale-bg: var(--color-danger-50);
+  --badge-sale-text: var(--color-danger);
+  --badge-soldout-bg: var(--color-ivory-200);
+  --badge-soldout-text: var(--color-ink-600);
+}
