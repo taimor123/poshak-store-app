@@ -1,4 +1,4 @@
-import type { Product } from '@/lib/catalog/types';
+import type { ProductCard as Product } from '@/lib/catalog/types';
 import { cn } from '@/lib/cn';
 import { ProductCard, ProductCardSkeleton } from './ProductCard';
 

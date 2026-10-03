@@ -99,7 +99,7 @@ export function PromoBanner({ eyebrow, title, cta, href }: { eyebrow: string; ti
 }
 
 /** 4 value props; 2×2 on mobile. */
-export function ValueProps() {
+export function ValueProps({ returnWindowDays }: { returnWindowDays: number }) {
   const [a, b] = storeConfig.standardDays;
   return (
     <section aria-label={`Why shop with ${siteConfig.name}`}>
@@ -107,7 +107,7 @@ export function ValueProps() {
         <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4">
           <IconFeature icon={CashIcon}>Cash on delivery</IconFeature>
           <IconFeature icon={TruckIcon}>{`Nationwide shipping, ${a}–${b} days`}</IconFeature>
-          <IconFeature icon={ReturnIcon}>{`${storeConfig.returnWindowDays}-day easy returns`}</IconFeature>
+          <IconFeature icon={ReturnIcon}>{`${returnWindowDays}-day easy returns`}</IconFeature>
           <IconFeature icon={ChatIcon}>WhatsApp support</IconFeature>
         </div>
       </div>

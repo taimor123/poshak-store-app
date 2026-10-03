@@ -1,59 +1,73 @@
 import 'server-only';
-import { CATEGORIES, subLabel } from '@/lib/catalog/categories';
-import { isStitched } from '@/lib/catalog/product';
-import type { ListingKey, Product } from '@/lib/catalog/types';
-import { MOCK_HOME_NEW_IN, MOCK_PRODUCTS } from '@/lib/mock/products';
+import type { CategoryListing, CategoryNode, Listing, ProductCard, ProductDetail, PublicConfig, ShippingZone } from '@/lib/catalog/types';
+import { storeConfig } from '@/config/store';
+import { api, apiData } from './client';
 
 /**
- * Catalogue reads. Server Components call these; client components receive
- * the results as props. Today they read demo data — when poshak-store-apis is
- * up, swap each body for a `client.ts` fetch (GET /api/v1/products …) and keep
- * the signatures.
+ * Catalogue reads for Server Components (public, cached briefly in the Next
+ * data cache). Failures degrade to empty results so a slow API never blanks
+ * the whole storefront; product/category lookups surface NOT_FOUND.
  */
 
-const NEW_WINDOW_DAYS = 14;
+type Query = Record<string, string | number | undefined>;
+const EMPTY_LISTING: Listing = { items: [], total: 0, nextCursor: null, facets: { fabric: [], price: [], size: [], hasStitched: false } };
 
-export async function getProducts(): Promise<Product[]> {
-  return MOCK_PRODUCTS;
+export async function getCategoryTree(): Promise<CategoryNode[]> {
+  const r = await api<CategoryNode[]>('/categories', { revalidate: 300 });
+  return r.ok ? r.data : [];
 }
 
-export async function getProduct(slug: string): Promise<Product | null> {
-  return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+/** null = unknown category (→ 404). Throws when the API is unreachable (→ error.tsx). */
+export async function getCategoryListing(path: string, query: Query): Promise<CategoryListing | null> {
+  const r = await api<CategoryListing>(`/categories/${path}/products`, { query, revalidate: 60 });
+  if (r.ok) return r.data;
+  if (r.error.code === 'NOT_FOUND') return null;
+  throw new Error(r.error.message);
 }
 
-export async function getProductsBySlugs(slugs: string[]): Promise<Product[]> {
-  return slugs.map((s) => MOCK_PRODUCTS.find((p) => p.slug === s)).filter((p): p is Product => !!p);
+export async function getCollection(slug: string, query: Query = {}): Promise<Listing> {
+  const r = await api<Listing>(`/collections/${slug}`, { query, revalidate: 60 });
+  return r.ok ? r.data : EMPTY_LISTING;
 }
 
-export async function getHomeNewIn(): Promise<Product[]> {
-  return getProductsBySlugs(MOCK_HOME_NEW_IN);
+export async function getProduct(slug: string): Promise<ProductDetail | null> {
+  const r = await api<ProductDetail>(`/products/${encodeURIComponent(slug)}`, { revalidate: 30 });
+  if (r.ok) return r.data;
+  if (r.error.code === 'NOT_FOUND') return null;
+  throw new Error(r.error.message);
 }
 
-export async function getNewThisWeek(limit = 4): Promise<Product[]> {
-  return MOCK_PRODUCTS.filter((p) => p.addedDaysAgo <= NEW_WINDOW_DAYS).slice(0, limit);
+export async function getProductsBySlugs(slugs: string[]): Promise<ProductCard[]> {
+  if (!slugs.length) return [];
+  const r = await api<ProductCard[]>('/products', { query: { slugs: slugs.join(',') }, revalidate: 30 });
+  return r.ok ? r.data : [];
 }
 
-/** Base set for a listing page, before shopper filters. */
-export async function getListing(key: ListingKey): Promise<Product[]> {
-  return MOCK_PRODUCTS.filter((p) =>
-    key === 'new' ? p.addedDaysAgo <= NEW_WINDOW_DAYS : key === 'sale' ? !!p.compareAtPaisa : key === 'all' ? true : p.category === key,
-  );
+export async function searchProducts(q: string): Promise<Listing> {
+  if (!q.trim()) return EMPTY_LISTING;
+  const r = await api<Listing>('/search', { query: { q, limit: 48 }, revalidate: 30 });
+  return r.ok ? r.data : EMPTY_LISTING;
 }
 
-export async function getRelated(p: Product, limit = 4): Promise<Product[]> {
-  return [
-    ...MOCK_PRODUCTS.filter((x) => x.category === p.category && x.slug !== p.slug),
-    ...MOCK_PRODUCTS.filter((x) => x.category !== p.category),
-  ].slice(0, limit);
+export async function getPublicConfig(): Promise<{
+  freeShippingThresholdPaisa: number;
+  expressFeePaisa: number;
+  lowStockThreshold: number;
+  maxQtyPerLine: number;
+  returnWindowDays: number;
+}> {
+  const r = await api<PublicConfig>('/config/public', { revalidate: 60 });
+  return r.ok
+    ? r.data
+    : {
+        freeShippingThresholdPaisa: storeConfig.freeShippingMinPaisa,
+        expressFeePaisa: storeConfig.expressShippingPaisa,
+        lowStockThreshold: storeConfig.lowStockThreshold,
+        maxQtyPerLine: storeConfig.maxQtyPerLine,
+        returnWindowDays: storeConfig.returnWindowDays,
+      };
 }
 
-export async function searchProducts(q: string): Promise<Product[]> {
-  const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return [];
-  return MOCK_PRODUCTS.filter((p) => {
-    const hay = [p.name, p.fabric, p.colour, CATEGORIES[p.category].name, subLabel(p.category, p.sub), p.sub, isStitched(p) ? 'stitched pret' : 'unstitched']
-      .join(' ')
-      .toLowerCase();
-    return words.every((w) => hay.includes(w.replace(/s$/, '')));
-  });
+export async function getShippingZones(): Promise<ShippingZone[]> {
+  return apiData<ShippingZone[]>('/shipping-zones', { revalidate: 300 });
 }

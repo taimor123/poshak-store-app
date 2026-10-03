@@ -1,6 +1,6 @@
 'use client';
 import { create } from 'zustand';
-import type { Product } from '@/lib/catalog/types';
+import type { ProductCard } from '@/lib/catalog/types';
 
 // Ephemeral UI state only (never persisted).
 
@@ -16,8 +16,8 @@ type UiState = {
   showToast: (msg: string) => void;
 
   /** Product display data fetched for cart / wishlist / recently viewed. */
-  products: Record<string, Product>;
-  primeProducts: (ps: Product[]) => void;
+  products: Record<string, ProductCard>;
+  primeProducts: (ps: ProductCard[]) => void;
 };
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;

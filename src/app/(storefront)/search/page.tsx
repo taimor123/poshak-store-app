@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { routes } from '@/config/routes';
-import { getNewThisWeek, searchProducts } from '@/lib/api/catalog';
+import { getCollection, searchProducts } from '@/lib/api/catalog';
 import { plural } from '@/lib/format';
 import { Eyebrow } from '@/components/ui/Blocks';
 import { ProductGrid } from '@/components/commerce/ProductGrid';
@@ -11,11 +11,11 @@ export const metadata = { title: 'Search' };
 const SUGGESTIONS = ['Lawn', 'Kurti', 'Unstitched 3-piece', 'Co-ord', 'Chiffon', 'Khaddar', 'Maxi'];
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const q = ((await searchParams).q ?? '').trim();
+  const q = ((await searchParams).q ?? '').trim().slice(0, 100);
   const results = await searchProducts(q);
-  const shown = results.length ? results : await getNewThisWeek();
-  const title = !q ? 'Search' : results.length ? `Results for “${q}”` : `No results for “${q}”`;
-  const sub = !q ? 'Search by fabric, style, colour or name.' : results.length ? plural(results.length, 'style') : 'Check the spelling, or try a fabric or style instead.';
+  const shown = results.items.length ? results.items : (await getCollection('new', { limit: 4 })).items;
+  const title = !q ? 'Search' : results.total ? `Results for “${q}”` : `No results for “${q}”`;
+  const sub = !q ? 'Search by fabric, style, colour or name.' : results.total ? plural(results.total, 'style') : 'Check the spelling, or try a fabric or style instead.';
 
   return (
     <div className="wrap pt-7">
@@ -27,7 +27,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </p>
       </div>
       <div className="mt-4">
-        <Eyebrow className="mb-2.5">{results.length ? 'Related searches' : 'Popular searches'}</Eyebrow>
+        <Eyebrow className="mb-2.5">{results.total ? 'Related searches' : 'Popular searches'}</Eyebrow>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
           {SUGGESTIONS.map((g) => (
             <Link key={g} href={routes.search(g.toLowerCase())} className="chip" data-on={g.toLowerCase() === q.toLowerCase()}>
@@ -37,7 +37,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </div>
       </div>
       <section aria-label="Results" className="mt-8">
-        {!results.length && <h2 className="h-section mb-5">New this week</h2>}
+        {!results.total && <h2 className="h-section mb-5">New this week</h2>}
         <ProductGrid products={shown} cols={4} />
       </section>
     </div>

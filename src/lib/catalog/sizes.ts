@@ -1,4 +1,4 @@
-import type { Size } from './types';
+export type Size = 'XS' | 'S' | 'M' | 'L' | 'XL';
 
 export const SIZES: Size[] = ['XS', 'S', 'M', 'L', 'XL'];
 

@@ -1,5 +1,4 @@
-import { CATEGORIES } from '@/lib/catalog/categories';
-import type { CategoryKey, ListingKey } from '@/lib/catalog/types';
+import { CATEGORIES, type CategoryKey, type ListingKey } from '@/lib/catalog/categories';
 import { routes } from './routes';
 
 /**
@@ -24,7 +23,7 @@ const menu = (key: CategoryKey, label: string): NavMenu => ({
 
 export const headerNav: NavEntry[] = [
   menu('unstitched', 'Unstitched'),
-  menu('rtw', 'Ready to Wear'),
+  menu('ready-to-wear', 'Ready to Wear'),
   menu('formals', 'Formals'),
   { kind: 'link', key: 'new', label: 'New In', href: routes.category('new') },
   { kind: 'link', key: 'sale', label: 'Sale', href: routes.category('sale'), tone: 'sale' },
@@ -50,7 +49,7 @@ export const footerNav = (whatsappHref: string, emailHref: string): { title: str
     title: 'Shop',
     links: [
       { label: 'Unstitched', href: routes.category('unstitched') },
-      { label: 'Ready to Wear', href: routes.category('rtw') },
+      { label: 'Ready to Wear', href: routes.category('ready-to-wear') },
       { label: 'Formals', href: routes.category('formals') },
       { label: 'New In', href: routes.category('new') },
       { label: 'Sale', href: routes.category('sale') },

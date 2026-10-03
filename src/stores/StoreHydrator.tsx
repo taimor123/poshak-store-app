@@ -1,13 +1,22 @@
 'use client';
 import { useEffect } from 'react';
-import { useCart } from './cart';
+import { getSessionUser } from '@/lib/actions/auth';
+import { refreshCart } from './cart';
 import { useShopper } from './shopper';
 import { useUi } from './ui';
 
-/** Loads persisted stores after mount, so SSR markup and first paint agree. */
+/**
+ * After mount: load the device's wishlist/recently-viewed, then the session
+ * and the server cart. Keeps every page statically renderable.
+ */
 export function StoreHydrator() {
   useEffect(() => {
-    Promise.all([useCart.persist.rehydrate(), useShopper.persist.rehydrate()]).then(() => useUi.getState().setHydrated());
+    void (async () => {
+      await useShopper.persist.rehydrate();
+      useUi.getState().setHydrated();
+      const [user] = await Promise.all([getSessionUser().catch(() => null), refreshCart().catch(() => undefined)]);
+      useShopper.getState().setUser(user);
+    })();
   }, []);
   return null;
 }

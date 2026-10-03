@@ -1,52 +1,45 @@
-import { storeConfig } from '@/config/store';
-import { SIZES } from './sizes';
-import type { PackPiece, Product, Size, Swatch } from './types';
+import type { ProductCard, Swatch } from './types';
 
-export const isStitched = (p: Product) => p.stock.kind === 'sizes';
+export const isStitched = (p: Pick<ProductCard, 'mode'>) => p.mode === 'STITCHED';
 
-export const totalStock = (p: Product) =>
-  p.stock.kind === 'pack' ? p.stock.qty : SIZES.reduce((a, z) => a + (p.stock as { bySize: Record<Size, number> }).bySize[z], 0);
-
-export const sizeStock = (p: Product, z: Size) => (p.stock.kind === 'pack' ? p.stock.qty : p.stock.bySize[z]);
-
-export const isLowStock = (n: number) => n > 0 && n <= storeConfig.lowStockThreshold;
-
-/** Honest stock caption: shown only when stock is genuinely low or zero. */
-export function stockNote(p: Product): { text: string; tone: 'warning' | 'muted' } | null {
-  const t = totalStock(p);
-  if (t === 0) return { text: 'Out of stock', tone: 'muted' };
-  if (isLowStock(t)) return { text: `Only ${t} left`, tone: 'warning' };
+/** Honest stock caption: only when genuinely low (the API decides "low") or zero. */
+export function stockNote(p: Pick<ProductCard, 'stock'>): { text: string; tone: 'warning' | 'muted' } | null {
+  if (p.stock.total === 0) return { text: 'Out of stock', tone: 'muted' };
+  if (p.stock.low) return { text: `Only ${p.stock.total} left`, tone: 'warning' };
   return null;
 }
 
 /** "Ready to wear · Lawn · Mustard" */
-export const metaLine = (p: Product) => [isStitched(p) ? 'Ready to wear' : 'Unstitched', p.fabric, p.colour].join(' · ');
+export const metaLine = (p: Pick<ProductCard, 'mode' | 'fabric' | 'colour'>) =>
+  [p.mode === 'STITCHED' ? 'Ready to wear' : p.mode === 'UNSTITCHED' ? 'Unstitched' : 'Free size', p.fabric, p.colour].filter(Boolean).join(' · ');
 
+/** "Noor — Chikankari Kurti, Ivory" → ["Noor", "Chikankari Kurti, Ivory"] */
+export const splitName = (name: string) => {
+  const i = name.indexOf(' — ');
+  return i < 0 ? [name, ''] : [name.slice(0, i), name.slice(i + 3)];
+};
+
+// Placeholder tone per colour name until real photography is uploaded.
+const SWATCHES: [RegExp, Swatch][] = [
+  [/mustard|yellow|gold|ochre/i, 'mustard'],
+  [/pink|ivory|blush|peach|cream|white|rose/i, 'teapink'],
+  [/emerald|green|bottle|teal/i, 'emerald'],
+  [/rust|maroon|red|orange|brown|wine/i, 'rust'],
+  [/blue|navy|indigo|black|grey|gray/i, 'deepblue'],
+  [/sage|mint|olive/i, 'sage'],
+];
+export const swatchFor = (colour: string | null | undefined): Swatch => SWATCHES.find(([re]) => re.test(colour ?? ''))?.[1] ?? 'sage';
 export const swatchVar = (s: Swatch) => `var(--color-fabric-${s})`;
 
-const FINE_FABRICS = ['Silk', 'Organza', 'Chiffon', 'Raw silk', 'Jacquard'];
-export const careText = (p: Product) =>
-  (FINE_FABRICS.includes(p.fabric)
+const FINE_FABRICS = ['Silk', 'Organza', 'Chiffon', 'Raw silk', 'Jacquard', 'Net'];
+export const careText = (fabric: string | null) =>
+  (FINE_FABRICS.includes(fabric ?? '')
     ? 'Dry clean only. Store folded in a cotton bag, away from direct sun.'
-    : 'Hand wash or gentle machine wash cold, separately. Dry in shade. Iron on the reverse at medium heat.') +
-  ` Fabric: ${p.fabric.toLowerCase()}.`;
+    : 'Hand wash or gentle machine wash cold, separately. Dry in shade. Iron on the reverse at medium heat.') + (fabric ? ` Fabric: ${fabric.toLowerCase()}.` : '');
 
-/** Unstitched pack contents. (From the API's product attributes later.) */
-export function packPieces(p: Product): PackPiece[] {
-  const f = p.fabric.toLowerCase();
-  const khaddar = f === 'khaddar';
-  const embroidered = /Embroidered/.test(p.styleType);
-  if (p.sub === '3-piece')
-    return [
-      { piece: 'Shirt front', fabric: (embroidered ? 'Embroidered ' : 'Printed ') + f, yards: 1.25 },
-      { piece: 'Shirt back & sleeves', fabric: 'Printed ' + f, yards: 1.75 },
-      { piece: 'Dupatta', fabric: khaddar ? 'Printed wool-blend shawl' : 'Printed chiffon', yards: 2.5 },
-      { piece: 'Trouser', fabric: khaddar ? 'Dyed khaddar' : 'Dyed cambric', yards: 2.5 },
-    ];
-  if (p.sub === '2-piece')
-    return [
-      { piece: 'Shirt', fabric: 'Printed ' + f, yards: 3 },
-      { piece: 'Trouser', fabric: 'Dyed cambric', yards: 2.5 },
-    ];
-  return [{ piece: 'Shirt', fabric: 'Printed ' + f, yards: 3 }];
-}
+/** Size-chart column labels. */
+const DIMENSION_LABELS: Record<string, string> = {
+  chest: 'Chest', waist: 'Waist', hip: 'Hip', shoulder: 'Shoulder', sleeve: 'Sleeve', length: 'Length',
+  bust: 'Bust', flare: 'Flare', ankle: 'Ankle',
+};
+export const dimensionLabel = (key: string) => DIMENSION_LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1);

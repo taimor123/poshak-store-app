@@ -1,6 +1,6 @@
 import { routes } from '@/config/routes';
-import { getHomeNewIn } from '@/lib/api/catalog';
-import { SectionHeader, SectionLink } from '@/components/ui/Blocks';
+import { getCollection, getPublicConfig } from '@/lib/api/catalog';
+import { EmptyState, SectionHeader, SectionLink } from '@/components/ui/Blocks';
 import { ProductRail } from '@/components/commerce/ProductGrid';
 import { RecentlyViewed } from '@/components/commerce/RecentlyViewed';
 import { CategoryTiles, FitTrustBand, Hero, PromoBanner, ValueProps } from '@/components/home/HomeSections';
@@ -8,7 +8,7 @@ import { CategoryTiles, FitTrustBand, Hero, PromoBanner, ValueProps } from '@/co
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const newIn = await getHomeNewIn();
+  const [newIn, config] = await Promise.all([getCollection('new', { limit: 8 }), getPublicConfig()]);
   return (
     <>
       <Hero />
@@ -16,12 +16,12 @@ export default async function HomePage() {
       <section aria-labelledby="newin-h">
         <div className="wrap pt-10 pb-2">
           <SectionHeader id="newin-h" title="New in" action={<SectionLink href={routes.category('new')}>View all →</SectionLink>} />
-          <ProductRail products={newIn} />
+          {newIn.items.length ? <ProductRail products={newIn.items} /> : <EmptyState title="New arrivals are on their way" body="Check back soon." />}
         </div>
       </section>
       <FitTrustBand />
       <PromoBanner eyebrow="The Eid Edit" title="Festive looks, from PKR 4,950" cta="Explore the edit" href={routes.category('formals')} />
-      <ValueProps />
+      <ValueProps returnWindowDays={config.returnWindowDays} />
       <div className="wrap">
         <RecentlyViewed />
       </div>

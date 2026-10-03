@@ -1,12 +1,10 @@
-'use client';
 import { routes } from '@/config/routes';
-import { formatPKR } from '@/lib/format';
-import { deliveryLabel } from '@/lib/shipping';
-import { useShopper } from '@/stores/shopper';
-import { useUi } from '@/stores/ui';
+import { deliveryRange, formatPKR } from '@/lib/format';
+import { swatchFor } from '@/lib/catalog/product';
+import { formatPkPhone } from '@/lib/validation';
+import type { OrderView } from '@/lib/orders/types';
 import { ButtonLink } from '@/components/ui/Button';
-import { EmptyState, NumberedSteps } from '@/components/ui/Blocks';
-import { Skeleton } from '@/components/ui/Skeleton';
+import { NumberedSteps } from '@/components/ui/Blocks';
 import { CheckIcon } from '@/components/ui/icons';
 import { SummaryLines, Totals } from '@/components/commerce/OrderSummary';
 
@@ -14,34 +12,14 @@ const card = 'card-box flex flex-col gap-1 p-5 text-body';
 const cap = 'mb-2 mt-0 text-label font-semibold uppercase text-ink-2';
 
 /** Order placed: what happens next, address, ETA, items and the cash to keep ready. */
-export function ConfirmationView() {
-  const hydrated = useUi((s) => s.hydrated);
-  const o = useShopper((s) => s.lastOrder);
-
-  if (!hydrated)
-    return (
-      <div className="wrap pt-10" aria-busy="true">
-        <div className="mx-auto flex max-w-[720px] flex-col gap-4">
-          <Skeleton className="size-12 rounded-full" />
-          <Skeleton className="h-[34px] w-[80%] rounded-btn" />
-          <Skeleton className="h-[260px] rounded-card" />
-        </div>
-      </div>
-    );
-
-  if (!o)
-    return (
-      <div className="wrap pt-10">
-        <h1 className="sr-only">Order confirmation</h1>
-        <EmptyState className="mx-auto max-w-[720px]" title="No recent order on this device" body="If you placed an order, you can track it with your order number and mobile." action={<ButtonLink href={routes.account('track')}>Track an order</ButtonLink>} />
-      </div>
-    );
-
+export function ConfirmationView({ order: o, trackHref }: { order: OrderView; trackHref: string }) {
+  const total = formatPKR(o.amounts.totalPaisa);
+  const eta = deliveryRange([2, 5]);
   const next = [
     { title: 'We confirm on WhatsApp', body: 'Within 12 hours. Reply to change your size or address.' },
     { title: 'We pack and dispatch', body: 'Within 1 working day of confirmation. You’ll get the tracking number by SMS.' },
-    { title: 'The rider delivers', body: `Expected ${o.eta}. They’ll call before arriving.` },
-    { title: 'Pay in cash', body: `${formatPKR(o.totalPaisa)}. Riders may not carry change.` },
+    { title: 'The rider delivers', body: `Expected ${eta}. They’ll call before arriving.` },
+    { title: 'Pay in cash', body: `${total}. Riders may not carry change.` },
   ];
 
   return (
@@ -52,9 +30,10 @@ export function ConfirmationView() {
             <CheckIcon />
           </span>
           <p className="eyebrow m-0 text-ink-2">Order {o.orderNo}</p>
-          <h1 className="h-page m-0">Shukriya, {o.name.split(' ')[0]}! Your order is placed.</h1>
+          <h1 className="h-page m-0">Shukriya, {o.shipping.name.split(' ')[0]}! Your order is placed.</h1>
           <p className="m-0 text-[15px] leading-6 text-ink-2">
-            We’ll confirm it on WhatsApp at {o.phone} within 12 hours. Please keep <strong className="font-semibold text-ink">{formatPKR(o.totalPaisa)}</strong> ready in cash for the rider.
+            We’ll confirm it on WhatsApp at {formatPkPhone(o.contact.phone)} within 12 hours, and we’ve emailed your receipt to {o.contact.email}. Please keep{' '}
+            <strong className="font-semibold text-ink">{total}</strong> ready in cash for the rider.
           </p>
         </div>
         <section aria-labelledby="next-h" className="card-box p-5">
@@ -68,16 +47,16 @@ export function ConfirmationView() {
             <h2 id="to-h" className={cap}>
               Delivering to
             </h2>
-            <span className="font-semibold">{o.name}</span>
-            <span>{[o.address, o.landmark, o.city].filter(Boolean).join(', ')}</span>
-            <span className="text-ink-2">{o.phone}</span>
+            <span className="font-semibold">{o.shipping.name}</span>
+            <span>{[o.shipping.line1, o.shipping.notes, o.shipping.city].filter(Boolean).join(', ')}</span>
+            <span className="text-ink-2">{formatPkPhone(o.shipping.phone)}</span>
           </section>
           <section aria-labelledby="dl-h" className={card}>
             <h2 id="dl-h" className={cap}>
               Delivery
             </h2>
-            <span className="font-semibold">{deliveryLabel(o.method)}</span>
-            <span>Expected {o.eta}</span>
+            <span className="font-semibold">{o.amounts.shippingPaisa === 0 ? 'Free delivery' : `Delivery · ${formatPKR(o.amounts.shippingPaisa)}`}</span>
+            <span>Expected {eta}</span>
             <span className="text-ink-2">Cash on delivery</span>
           </section>
         </div>
@@ -85,11 +64,20 @@ export function ConfirmationView() {
           <h2 id="it-h" className="m-0 text-group font-semibold">
             Items
           </h2>
-          <SummaryLines lines={o.lines.map((l, i) => ({ key: i, ...l }))} />
-          <Totals subtotalPaisa={o.subtotalPaisa} shippingPaisa={o.shippingPaisa} totalLabel="Pay on delivery" divided={false} />
+          <SummaryLines
+            lines={o.items.map((i) => ({
+              key: i.id,
+              name: i.productName,
+              meta: `${i.sizeLabel ? 'Size ' + i.sizeLabel : 'Unstitched'} · Qty ${i.qty}`,
+              swatch: swatchFor(i.productName),
+              image: i.imageUrl ? { url: i.imageUrl } : null,
+              linePaisa: i.linePaisa,
+            }))}
+          />
+          <Totals subtotalPaisa={o.amounts.subtotalPaisa} shippingPaisa={o.amounts.shippingPaisa} totalLabel="Pay on delivery" divided={false} />
         </section>
         <div className="flex flex-wrap gap-2.5">
-          <ButtonLink href={routes.account()}>Track your order</ButtonLink>
+          <ButtonLink href={trackHref}>Track your order</ButtonLink>
           <ButtonLink variant="secondary" href={routes.category('new')}>
             Continue shopping
           </ButtonLink>

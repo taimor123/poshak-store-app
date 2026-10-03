@@ -1,7 +1,6 @@
 'use client';
 import { useSyncExternalStore } from 'react';
 import { siteConfig } from '@/config/site';
-import { storeConfig } from '@/config/store';
 import { formatPKR } from '@/lib/format';
 import { CloseIcon } from '@/components/ui/icons';
 
@@ -20,7 +19,7 @@ const subscribe = (cb: () => void) => {
 };
 
 /** Maroon band above the header. Dismissal lasts for the browser session. */
-export function AnnouncementBar() {
+export function AnnouncementBar({ freeShippingThresholdPaisa }: { freeShippingThresholdPaisa: number }) {
   const show = useSyncExternalStore(subscribe, read, () => true);
   if (!show) return null;
   const dismiss = () => {
@@ -34,7 +33,7 @@ export function AnnouncementBar() {
       <div className="wrap relative flex min-h-11 items-center justify-center py-[5px]">
         {/* The ONE gold element on the site. */}
         <p className="m-0 pr-11 pl-7 text-center text-ui font-medium text-gold">
-          Free shipping on orders over {formatPKR(storeConfig.freeShippingMinPaisa)} · Cash on delivery available
+          Free shipping on orders over {formatPKR(freeShippingThresholdPaisa)} · Cash on delivery available
         </p>
         <button
           type="button"

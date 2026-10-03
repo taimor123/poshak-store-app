@@ -1,5 +1,5 @@
 import { siteConfig } from '@/config/site';
-import { storeConfig } from '@/config/store';
+import { getPublicConfig, getShippingZones } from '@/lib/api/catalog';
 import { formatPKR } from '@/lib/format';
 import { Accordion } from '@/components/ui/Accordion';
 import { InfoCard, NumberedSteps, PageHeading } from '@/components/ui/Blocks';
@@ -7,21 +7,23 @@ import { Table } from '@/components/ui/Table';
 import { HelpPanel } from '@/components/content/HelpPanel';
 
 export const metadata = { title: 'Shipping & returns' };
+export const revalidate = 300;
 
-const days = storeConfig.returnWindowDays;
-const free = formatPKR(storeConfig.freeShippingMinPaisa);
-const standard = formatPKR(storeConfig.standardShippingPaisa);
-const express = formatPKR(storeConfig.expressShippingPaisa);
-const expressCities = `${storeConfig.expressCities.slice(0, -1).join(', ')} and ${storeConfig.expressCities.at(-1)}`;
-
-const FAQ = [
+const faq = (days: number) => [
   { title: 'Can I open the parcel before paying?', body: `Most couriers don’t allow opening before payment. Check that the seal is intact; if anything inside is wrong, we’ll fix it under the ${days}-day policy.` },
   { title: 'Are sale items returnable?', body: 'Yes, on the same terms as full-price items.' },
   { title: 'What if my piece arrives damaged?', body: 'Send us a photo within 48 hours. We’ll replace it or refund you in full, including shipping.' },
   { title: 'Do you ship outside Pakistan?', body: 'Not yet. We’ll announce it here when we do.' },
 ];
 
-export default function ShippingReturnsPage() {
+export default async function ShippingReturnsPage() {
+  const [config, zones] = await Promise.all([getPublicConfig(), getShippingZones().catch(() => [])]);
+  const days = config.returnWindowDays;
+  const free = formatPKR(config.freeShippingThresholdPaisa);
+  const standard = formatPKR(zones.length ? Math.min(...zones.map((z) => z.feePaisa)) : 250_00);
+  const express = formatPKR(config.expressFeePaisa);
+  const ex = zones.filter((z) => z.expressAvailable).map((z) => z.city);
+  const expressCities = ex.length > 1 ? `${ex.slice(0, -1).join(', ')} and ${ex.at(-1)}` : (ex[0] ?? 'major cities');
   return (
     <div className="wrap pt-8">
       <div className="mx-auto flex max-w-[880px] flex-col gap-10">
@@ -73,7 +75,7 @@ export default function ShippingReturnsPage() {
           <h2 id="f-h" className="h-section mb-2">
             Common questions
           </h2>
-          <Accordion items={FAQ} />
+          <Accordion items={faq(days)} />
         </section>
         <HelpPanel inline cta="WhatsApp us">
           <strong className="font-semibold">Still unsure?</strong> We reply on WhatsApp within an hour, {siteConfig.contact.hours}.

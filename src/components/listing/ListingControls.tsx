@@ -3,9 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useTransition, type ReactNode } from 'react';
 import { routes } from '@/config/routes';
-import { EMPTY_FILTERS, PRICE_BANDS, SORT_OPTIONS, toQuery, type ListingFilters, type SortKey } from '@/lib/catalog/filters';
-import { SIZES } from '@/lib/catalog/sizes';
-import type { Size } from '@/lib/catalog/types';
+import { EMPTY_FILTERS, PRICE_BANDS, SIZE_FILTERS, SORT_OPTIONS, toQuery, type ListingFilters, type SortKey } from '@/lib/catalog/filters';
 import { plural } from '@/lib/format';
 import { useEscape, useFocusTrap, useLockScroll } from '@/hooks/a11y';
 import { cn } from '@/lib/cn';
@@ -154,7 +152,7 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
               <fieldset className="m-0 border-0 p-0">
                 <legend className={cn(legend, 'mb-2.5')}>Size in stock</legend>
                 <div className="flex flex-wrap gap-2">
-                  {SIZES.map((z: Size) => (
+                  {SIZE_FILTERS.map((z) => (
                     <button key={z} type="button" className="size-chip" data-on={f.sizes.includes(z)} aria-pressed={f.sizes.includes(z)} onClick={() => go({ sizes: toggle(f.sizes, z) })}>
                       {z}
                     </button>

@@ -1,10 +1,11 @@
 'use client';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { PlacedOrder } from '@/lib/orders/types';
+import type { SessionUser } from '@/lib/api/account';
 import { persistOptions } from './persist';
 
-// Per-device shopper state: wishlist, recently viewed, demo session, last order.
+// Per-device shopper state: wishlist and recently viewed (slugs only — product
+// data is always fetched fresh). The session is read from the API, not stored.
 
 const RECENT_MAX = 8;
 
@@ -16,13 +17,9 @@ type ShopperState = {
   markViewed: (slug: string) => void;
   clearViewed: () => void;
 
-  /** Demo phone-OTP session. Replaced by the API's session cookie later. */
-  session: { phone: string } | null;
-  signIn: (phone: string) => void;
-  signOut: () => void;
-
-  lastOrder: PlacedOrder | null;
-  saveOrder: (o: PlacedOrder) => void;
+  /** Signed-in user, from GET /auth/session. Not persisted. */
+  user: SessionUser | null;
+  setUser: (user: SessionUser | null) => void;
 };
 
 export const useShopper = create<ShopperState>()(
@@ -39,13 +36,9 @@ export const useShopper = create<ShopperState>()(
       markViewed: (slug) => set(({ viewed }) => ({ viewed: [slug, ...viewed.filter((x) => x !== slug)].slice(0, RECENT_MAX) })),
       clearViewed: () => set({ viewed: [] }),
 
-      session: null,
-      signIn: (phone) => set({ session: { phone } }),
-      signOut: () => set({ session: null }),
-
-      lastOrder: null,
-      saveOrder: (lastOrder) => set({ lastOrder }),
+      user: null,
+      setUser: (user) => set({ user }),
     }),
-    persistOptions<ShopperState>('shopper'),
+    { ...persistOptions<ShopperState>('shopper'), partialize: (s) => ({ wishlist: s.wishlist, viewed: s.viewed }) },
   ),
 );

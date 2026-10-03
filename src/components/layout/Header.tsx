@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { routes } from '@/config/routes';
 import { useEscape } from '@/hooks/a11y';
-import { cartCount, useCart } from '@/stores/cart';
+import { useCart } from '@/stores/cart';
 import { useShopper } from '@/stores/shopper';
 import { useUi } from '@/stores/ui';
 import { IconButton } from '@/components/ui/Button';
@@ -25,9 +25,9 @@ export function Header() {
 
   const hydrated = useUi((s) => s.hydrated);
   const setCartOpen = useUi((s) => s.setCartOpen);
-  const count = useCart((s) => cartCount(s.lines));
+  const count = useCart((s) => s.cart.count);
   const wishCount = useShopper((s) => s.wishlist.length);
-  const signedIn = useShopper((s) => !!s.session);
+  const signedIn = useShopper((s) => !!s.user);
 
   return (
     <>

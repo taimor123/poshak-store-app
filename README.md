@@ -6,10 +6,13 @@ UI only. Domain logic, the database and auth live in [`poshak-store-apis`](https
 
 ## Run it
 
+The storefront reads everything from the API, so start that first. In `poshak-store-apis`, run `docker compose up -d --build`; that brings up Postgres and the API on :4000, migrated and seeded.
+
 ```bash
+cp .env.example .env.local   # API_URL=http://localhost:4000
 npm install
-npm run dev        # http://localhost:3000
-npm run build      # production build
+npm run dev                  # http://localhost:3000
+npm run build                # production build (reads the API at build time)
 npm run lint
 ```
 
@@ -55,12 +58,11 @@ src/
 ├── config/                   site, store, nav, routes
 ├── hooks/                    a11y (focus trap, Esc, scroll lock), useProducts, useCartDetails
 ├── lib/
-│   ├── api/                  server-only reads (catalog, account): demo data today, API fetches later
-│   ├── actions/              server actions (place order, track, OTP): thin proxies to the API later
-│   ├── catalog/              types, categories, sizes, filters, product helpers
-│   ├── mock/                 demo catalogue and orders: imported only by lib/api and lib/actions
+│   ├── api/                  server-only API client (client.ts forwards cookies, parses the envelope) + reads
+│   ├── actions/              server actions: thin proxies to the API (cart, orders, auth); relay Set-Cookie
+│   ├── catalog/              API DTO types, curated categories, URL filters, product helpers
 │   └── format.ts             formatPKR (money is integer paisa everywhere), dates
-├── stores/                   Zustand: cart, shopper (wishlist, recently viewed, session), ui
+├── stores/                   Zustand: cart (mirror of the server cart), shopper (wishlist, recently viewed, session), ui
 └── styles/                   tokens.css, fonts.ts
 ```
 
@@ -71,9 +73,17 @@ src/
 - Filter, sort and sub-category state lives in the **URL**, not in stores.
 - Mobile-first at 360px. Every interactive element has a visible focus ring and a hit area of at least 44px.
 
-## Still demo-only (waiting on `poshak-store-apis`)
+## How it talks to the API
 
-- The catalogue and order history come from `src/lib/mock/`. Replace the function bodies in `src/lib/api/*` with API calls and keep their signatures.
-- `placeOrder`, `trackOrder` and the OTP actions in `src/lib/actions/` don't call the API yet. The demo sign-in code is `123456`.
-- Cart, wishlist and session are stored on the device (localStorage). They move to the API once it exists.
-- Product images are colour placeholders. Swap the inside of `ProductImage` for `next/image` at the same aspect ratios.
+- **Reads** (catalogue, product, search, config, zones) come from Server Components through `lib/api/*`. Public reads sit in the Next data cache for 30–300 s.
+- **Writes** (cart, checkout, sign-in, cancel) go through `lib/actions/*` server actions. They forward the shopper's `psk_session` / `psk_anon` cookies to the API and relay the API's `Set-Cookie` back. The browser never calls the API directly.
+- **The cart lives on the server.** The Zustand cart store only mirrors the last cart the API returned. Every cart and checkout view re-reads it, so the current price always wins.
+- **Checkout** sends one `Idempotency-Key` per attempt, so a retry can never create a second order. `PRICE_MISMATCH` and `STOCK_CONFLICT` refresh the cart and show a banner.
+- **Guests** get a signed token in their confirmation and tracking links (`/order/PSK-…?t=…`), or track with order number + mobile.
+
+## Not built yet
+
+- Email OTP verification and Google sign-in (deferred by the owner until testing).
+- The admin panel UI. The admin API exists in `poshak-store-apis`.
+- Saving addresses from the account page (the API endpoints exist).
+- Real product photos. Cards fall back to colour placeholders until images are uploaded to Cloudinary.

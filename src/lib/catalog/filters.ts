@@ -1,11 +1,7 @@
-import { formatPKR } from '@/lib/format';
-import { isStitched } from './product';
-import { SIZES } from './sizes';
-import type { Product, Size } from './types';
-
 /**
  * Listing filters live in the URL (?s=&fabric=&price=&size=&sale=1&stock=1&sort=),
- * never in a store. These helpers parse, apply and rebuild that query string.
+ * never in a store. These helpers parse and rebuild that query string and map
+ * it to the API's listing parameters. Filtering itself happens in the API.
  */
 
 export type SortKey = 'new' | 'low' | 'high';
@@ -13,19 +9,20 @@ export type ListingFilters = {
   sub: string | null;
   fabrics: string[];
   price: string | null;
-  sizes: Size[];
+  sizes: string[];
   onSale: boolean;
   inStock: boolean;
   sort: SortKey;
 };
 
-const K = (rupees: number) => rupees * 100;
-export const PRICE_BANDS: { key: string; label: string; test: (paisa: number) => boolean }[] = [
-  { key: 'u5', label: `Under ${formatPKR(K(5000))}`, test: (p) => p < K(5000) },
-  { key: '5-10', label: `${formatPKR(K(5000))} – ${formatPKR(K(10000)).replace('PKR ', '')}`, test: (p) => p >= K(5000) && p <= K(10000) },
-  { key: '10-20', label: `${formatPKR(K(10000))} – ${formatPKR(K(20000)).replace('PKR ', '')}`, test: (p) => p > K(10000) && p <= K(20000) },
-  { key: 'o20', label: `Over ${formatPKR(K(20000))}`, test: (p) => p > K(20000) },
+export const PRICE_BANDS: { key: string; label: string }[] = [
+  { key: 'u5', label: 'Under PKR 5,000' },
+  { key: '5-10', label: 'PKR 5,000 – 10,000' },
+  { key: '10-20', label: 'PKR 10,000 – 20,000' },
+  { key: 'o20', label: 'Over PKR 20,000' },
 ];
+
+export const SIZE_FILTERS = ['XS', 'S', 'M', 'L', 'XL'];
 
 export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: 'new', label: 'Newest' },
@@ -44,7 +41,7 @@ export function parseFilters(sp: Params): ListingFilters {
     sub: one(sp.s) || null,
     fabrics: list(sp.fabric),
     price: PRICE_BANDS.some((b) => b.key === price) ? price! : null,
-    sizes: list(sp.size).filter((z): z is Size => (SIZES as string[]).includes(z)),
+    sizes: list(sp.size).filter((z) => SIZE_FILTERS.includes(z)),
     onSale: one(sp.sale) === '1',
     inStock: one(sp.stock) === '1',
     sort: sort === 'low' || sort === 'high' ? sort : 'new',
@@ -64,24 +61,15 @@ export function toQuery(f: ListingFilters): string {
   return s ? `?${s}` : '';
 }
 
+/** URL filters → API listing query params. */
+export const toApiQuery = (f: ListingFilters, limit = 48) => ({
+  fabric: f.fabrics.join(',') || undefined,
+  price: f.price ?? undefined,
+  size: f.sizes.join(',') || undefined,
+  sale: f.onSale ? '1' : undefined,
+  inStock: f.inStock ? '1' : undefined,
+  sort: f.sort === 'low' ? 'price_asc' : f.sort === 'high' ? 'price_desc' : 'new',
+  limit,
+});
+
 export const EMPTY_FILTERS: ListingFilters = { sub: null, fabrics: [], price: null, sizes: [], onSale: false, inStock: false, sort: 'new' };
-
-const hasStock = (p: Product) => (p.stock.kind === 'pack' ? p.stock.qty > 0 : Object.values(p.stock.bySize).some((n) => n > 0));
-
-export function applyFilters(base: Product[], f: ListingFilters) {
-  const afterSub = f.sub ? base.filter((p) => p.sub === f.sub) : base;
-  const band = PRICE_BANDS.find((b) => b.key === f.price);
-  const results = afterSub
-    .filter((p) => !f.fabrics.length || f.fabrics.includes(p.fabric))
-    .filter((p) => !band || band.test(p.pricePaisa))
-    .filter((p) => !f.sizes.length || (p.stock.kind === 'sizes' && f.sizes.some((z) => (p.stock as { bySize: Record<Size, number> }).bySize[z] > 0)))
-    .filter((p) => !f.onSale || !!p.compareAtPaisa)
-    .filter((p) => !f.inStock || hasStock(p))
-    .sort((a, b) => (f.sort === 'low' ? a.pricePaisa - b.pricePaisa : f.sort === 'high' ? b.pricePaisa - a.pricePaisa : a.addedDaysAgo - b.addedDaysAgo));
-
-  const fabricCounts = Array.from(new Set(afterSub.map((p) => p.fabric)))
-    .sort()
-    .map((fabric) => ({ fabric, count: afterSub.filter((p) => p.fabric === fabric).length }));
-
-  return { results, fabricCounts, hasStitched: afterSub.some(isStitched) };
-}

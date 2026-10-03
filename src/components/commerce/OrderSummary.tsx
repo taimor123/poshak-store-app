@@ -4,7 +4,7 @@ import type { Swatch } from '@/lib/catalog/types';
 import { LineThumb } from './ProductImage';
 import { TotalRow } from './Price';
 
-export type SummaryLine = { key: string | number; name: string; meta: string; swatch: Swatch; linePaisa: number };
+export type SummaryLine = { key: string | number; name: string; meta: string; swatch: Swatch; image?: { url: string } | null; linePaisa: number };
 
 /** Compact item list (52px thumbs) used in checkout and confirmation. */
 export function SummaryLines({ lines }: { lines: SummaryLine[] }) {
@@ -12,7 +12,7 @@ export function SummaryLines({ lines }: { lines: SummaryLine[] }) {
     <>
       {lines.map((l) => (
         <div key={l.key} className="flex gap-3">
-          <LineThumb swatch={l.swatch} />
+          <LineThumb swatch={l.swatch} image={l.image} />
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="text-ui font-medium">{l.name}</span>
             <span className="text-caption text-ink-2">{l.meta}</span>

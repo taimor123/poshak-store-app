@@ -1,9 +1,10 @@
 /**
- * Business rules shown in the UI. Money is integer paisa (PKR × 100).
+ * Display defaults for business numbers. Money is integer paisa (PKR × 100).
  *
- * These mirror `StoreConfig` in the API (docs/DATABASE/DATABASE_SCHEMA.md).
- * Until the storefront reads StoreConfig from the API, change them here —
- * never hard-code these numbers in components.
+ * The real values live in the API's StoreConfig (admin-editable) and reach the
+ * storefront through GET /config/public — see lib/api/catalog.ts
+ * `getPublicConfig()`. These are used only as fallbacks if the API is
+ * unreachable, and for copy that has no API field yet.
  */
 export const storeConfig = {
   currency: 'PKR',
@@ -11,21 +12,12 @@ export const storeConfig = {
   freeShippingMinPaisa: 5_000_00,
   standardShippingPaisa: 250_00,
   expressShippingPaisa: 450_00,
-  expressCities: ['Karachi', 'Lahore', 'Islamabad'],
-  cities: [
-    'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan',
-    'Peshawar', 'Hyderabad', 'Quetta', 'Sialkot', 'Gujranwala', 'Other',
-  ],
+  /** Typical standard delivery window (working days), for "Arrives …" copy. */
   standardDays: [2, 5] as [number, number],
-  expressDays: [1, 2] as [number, number],
 
-  /** "Only N left" appears only when stock is genuinely at or below this. */
   lowStockThreshold: 3,
-  maxQtyPerLine: 5,
+  maxQtyPerLine: 10,
   returnWindowDays: 7,
-
-  /** Order numbers: PSK-YYYYMM-NNNN. */
-  orderPrefix: 'PSK',
 
   /** Cash on delivery is the only payment method at launch. */
   cardPaymentsLive: false,

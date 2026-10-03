@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/cn';
-import type { Product } from '@/lib/catalog/types';
+import type { ProductCard as Product } from '@/lib/catalog/types';
 import { useShopper } from '@/stores/shopper';
 import { toast, useUi } from '@/stores/ui';
 import { HeartIcon } from '@/components/ui/icons';

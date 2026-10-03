@@ -1,6 +1,6 @@
-import { SignInView } from '@/components/account/SignInView';
+import { SignInView } from '@/components/account/AuthViews';
 
-export const metadata = { title: 'Sign in' };
+export const metadata = { title: 'Sign in', robots: { index: false } };
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams;

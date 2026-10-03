@@ -1,42 +1,24 @@
 'use client';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { storeConfig } from '@/config/store';
-import type { Size } from '@/lib/catalog/types';
-import { persistOptions } from './persist';
+import { getCart } from '@/lib/actions/cart';
+import { EMPTY_CART, type Cart } from '@/lib/orders/types';
 
-// Guest cart, persisted on this device. When the API cart ships, the server
-// cart becomes the truth and this store only mirrors it (FRONTEND_ARCHITECTURE.md).
-// The cart holds no prices: they're looked up fresh every time it's shown.
-
-export type CartLine = { slug: string; size: Size | null; qty: number };
+// Mirror of the server cart (FRONTEND_ARCHITECTURE.md §Data flow: the API cart
+// is the truth). Holds the last cart the API returned; never persisted.
 
 type CartState = {
-  lines: CartLine[];
-  add: (slug: string, size: Size | null, qty: number) => void;
-  setQty: (index: number, qty: number) => void;
-  remove: (index: number) => void;
-  clear: () => void;
+  cart: Cart;
+  loaded: boolean;
+  setCart: (cart: Cart) => void;
 };
 
-const clampQty = (n: number) => Math.max(1, Math.min(storeConfig.maxQtyPerLine, n));
+export const useCart = create<CartState>()((set) => ({
+  cart: EMPTY_CART,
+  loaded: false,
+  setCart: (cart) => set({ cart, loaded: true }),
+}));
 
-export const useCart = create<CartState>()(
-  persist(
-    (set) => ({
-      lines: [],
-      add: (slug, size, qty) =>
-        set(({ lines }) => {
-          const i = lines.findIndex((l) => l.slug === slug && l.size === size);
-          if (i < 0) return { lines: [...lines, { slug, size, qty: clampQty(qty) }] };
-          return { lines: lines.map((l, k) => (k === i ? { ...l, qty: clampQty(l.qty + qty) } : l)) };
-        }),
-      setQty: (index, qty) => set(({ lines }) => ({ lines: lines.map((l, k) => (k === index ? { ...l, qty: clampQty(qty) } : l)) })),
-      remove: (index) => set(({ lines }) => ({ lines: lines.filter((_, k) => k !== index) })),
-      clear: () => set({ lines: [] }),
-    }),
-    persistOptions<CartState>('cart'),
-  ),
-);
-
-export const cartCount = (lines: CartLine[]) => lines.reduce((a, l) => a + l.qty, 0);
+/** Re-reads the cart from the API (full revalidation: current prices, stock clamps). */
+export async function refreshCart() {
+  useCart.getState().setCart(await getCart());
+}

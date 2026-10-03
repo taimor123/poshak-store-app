@@ -4,9 +4,11 @@ import { storeConfig } from '@/config/store';
 import { deliveryRange, formatPKR } from '@/lib/format';
 import { CashIcon, ReturnIcon, TruckIcon } from '@/components/ui/icons';
 
-/** Delivery / COD / returns panel on the product page. */
-export function DeliveryPromise({ stitched }: { stitched: boolean }) {
-  const days = storeConfig.returnWindowDays;
+type Config = { freeShippingThresholdPaisa: number; returnWindowDays: number };
+
+/** Delivery / COD / returns panel on the product page. Numbers come from the API's StoreConfig. */
+export function DeliveryPromise({ stitched, config, standardFeePaisa = storeConfig.standardShippingPaisa }: { stitched: boolean; config: Config; standardFeePaisa?: number }) {
+  const days = config.returnWindowDays;
   return (
     <div className="flex flex-col gap-3 rounded-card bg-alt p-4 text-ui">
       <div className="flex items-start gap-3">
@@ -14,7 +16,7 @@ export function DeliveryPromise({ stitched }: { stitched: boolean }) {
         <span>
           <strong className="font-semibold">Arrives {deliveryRange(storeConfig.standardDays)}</strong>
           <br />
-          Free shipping over {formatPKR(storeConfig.freeShippingMinPaisa)}, otherwise {formatPKR(storeConfig.standardShippingPaisa)}.
+          Free shipping over {formatPKR(config.freeShippingThresholdPaisa)}, otherwise {formatPKR(standardFeePaisa)}.
         </span>
       </div>
       <div className="flex items-start gap-3">

@@ -2,13 +2,15 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { routes } from '@/config/routes';
-import { stockNote } from '@/lib/catalog/product';
-import type { Product } from '@/lib/catalog/types';
+import { stockNote, swatchFor } from '@/lib/catalog/product';
+import type { ProductCard as Product } from '@/lib/catalog/types';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Price } from './Price';
 import { ProductImage } from './ProductImage';
 import { QuickView } from './QuickView';
 import { WishButton } from './WishButton';
+
+const BADGE = { NEW: 'New', SALE: 'Sale' } as const;
 
 /**
  * THE product card — identical everywhere: 3:4 image → name (2-line clamp) →
@@ -20,8 +22,8 @@ export function ProductCard({ product: p }: { product: Product }) {
   const note = stockNote(p);
   return (
     <div className="card relative flex flex-col gap-2.5 text-ink">
-      <ProductImage swatch={p.swatch} alt={`${p.name}, ${p.colour.toLowerCase()}`}>
-        {p.badge && <span className="pointer-events-none absolute top-3 left-3 z-2 rounded-full bg-surface px-2.5 py-[5px] text-label font-semibold text-ink uppercase">{p.badge}</span>}
+      <ProductImage image={p.image} swatch={swatchFor(p.colour)} alt={`${p.name}${p.colour ? `, ${p.colour.toLowerCase()}` : ''}`}>
+        {p.badge && <span className="pointer-events-none absolute top-3 left-3 z-2 rounded-full bg-surface px-2.5 py-[5px] text-label font-semibold text-ink uppercase">{BADGE[p.badge]}</span>}
         <button
           type="button"
           className="qv absolute inset-x-2 bottom-2 z-2 min-h-10 translate-y-1.5 rounded-btn bg-surface/95 text-ui font-semibold text-ink opacity-0 transition hover:bg-surface hover:text-brand"
@@ -36,7 +38,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         <Link href={routes.product(p.slug)} className="stretched text-ink no-underline hover:text-ink">
           <span className="card-name line-clamp-2 text-body font-medium">{p.name}</span>
         </Link>
-        <Price paisa={p.pricePaisa} compareAtPaisa={p.compareAtPaisa} />
+        <Price paisa={p.pricePaisa} compareAtPaisa={p.compareAtPaisa ?? undefined} />
         {note && <span className={`text-caption ${note.tone === 'warning' ? 'text-warning' : 'text-ink-2'}`}>{note.text}</span>}
       </div>
       {quickView && <QuickView product={p} onClose={() => setQuickView(false)} />}
