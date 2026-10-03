@@ -1,37 +1,30 @@
-import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "600"],
-});
+import type { Metadata, Viewport } from 'next';
+import { siteConfig } from '@/config/site';
+import { StoreHydrator } from '@/stores/StoreHydrator';
+import { Toaster } from '@/components/ui/Toaster';
+import { displayFont, sansFont } from '@/styles/fonts';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Poshak Store",
-  description: "Pakistani ladies' eastern wear",
+  metadataBase: new URL(siteConfig.url),
+  title: { default: `${siteConfig.name} · ${siteConfig.positioning}`, template: `%s · ${siteConfig.name}` },
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  openGraph: { siteName: siteConfig.name, locale: 'en_PK', type: 'website' },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  themeColor: siteConfig.themeColor,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`}>
+      <body className="flex min-h-screen flex-col">
+        {children}
+        <Toaster />
+        <StoreHydrator />
+      </body>
     </html>
   );
 }

@@ -1,92 +1,129 @@
-@theme {
-  /* Maroon Family */
-  --color-maroon-50: #FBF2F4;
-  --color-maroon-100: #F3DEE3;
-  --color-maroon-300: #C98A9B;
-  --color-maroon-500: #8E2D4A;
-  --color-maroon-700: #6E1F38;
-  --color-maroon-800: #571830;
-  --color-maroon-900: #3E1122;
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  Poshak design tokens — THE single source of truth for the look of the site.
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  Change a value here and it changes everywhere: every page, every button,
+ *  every component. Components never use raw hex values — only these names
+ *  (as Tailwind classes like `bg-brand`, `text-ink-2`, `border-line`, or as
+ *  CSS variables like `var(--color-brand)`).
+ *
+ *  Re-skinning the store:
+ *    1. Brand palette  → change --color-brand* / --color-band / --color-selected
+ *    2. Buttons        → defaults follow the brand; override --color-btn-* to diverge
+ *    3. Neutrals       → page background, surfaces, borders, text
+ *    4. Status colours → sale, success, warning
+ *
+ *  Spec: docs/DESIGN_SYSTEM/COLOR_SYSTEM.md + "Measured Grace" design handoff.
+ */
 
-  /* Gold Family */
-  --color-gold-300: #E3C878;
-  --color-gold-500: #C9A24B;
-  --color-gold-700: #9A7830;
+@theme static {
+  /* Remove Tailwind's default palette so only the tokens below can be used. */
+  --color-*: initial;
 
-  /* Ivory/Neutrals */
-  --color-ivory-50: #FBF8F3;
-  --color-ivory-100: #F4EFE6;
-  --color-ivory-200: #E9E1D3;
-  --color-ivory-400: #B7AC99;
+  /* ── 1. Brand ─────────────────────────────────────────────────────────── */
+  --color-brand: #6e1f38;          /* primary actions, links, icons, selected outlines */
+  --color-brand-hover: #571830;
+  --color-brand-pressed: #451226;
+  --color-brand-tint: #fbf3f5;     /* selected radio-card background */
+  --color-band: #3e1122;           /* announcement bar + footer background */
+  --color-selected: #f3dee3;       /* selected chip/size fill, active pills */
+  --color-focus: #8e2d4a;          /* focus ring on every interactive element */
+  --color-gold: #c9a24b;           /* ONE use only: announcement-bar text */
 
-  /* Ink */
-  --color-ink-600: #5C544B;
-  --color-ink-900: #241F1B;
+  /* ── 2. Buttons (follow the brand unless you override them) ───────────── */
+  --color-btn-primary: var(--color-brand);
+  --color-btn-primary-hover: var(--color-brand-hover);
+  --color-btn-primary-pressed: var(--color-brand-pressed);
+  --color-btn-primary-text: var(--color-page);
+  --color-btn-secondary-bg: var(--color-surface);
+  --color-btn-secondary-hover: var(--color-selected);
+  --color-btn-secondary-border: var(--color-brand);
+  --color-btn-secondary-text: var(--color-brand);
+  --color-btn-disabled: var(--color-mute);
 
-  /* Status Colors */
-  --color-success-50: #EAF4EE;
-  --color-success: #2E7D4F;
-  --color-warning-50: #FBF1E2;
-  --color-warning: #B87514;
-  --color-danger-50: #FBEAE9;
-  --color-danger: #B3261E;
-  --color-info-50: #EAF1F8;
-  --color-info: #31608F;
+  /* ── 3. Neutrals ──────────────────────────────────────────────────────── */
+  --color-page: #fbf8f3;           /* page background (warm ivory) */
+  --color-surface: #ffffff;        /* cards, header, panels, inputs */
+  --color-alt: #f4efe6;            /* alt bands, table headers, info panels */
+  --color-line: #e9e1d3;           /* dividers, card borders, skeleton fill */
+  --color-line-strong: #8a8073;    /* input, size-chip, stepper borders */
+  --color-ink: #241f1b;            /* primary text */
+  --color-ink-2: #5c544b;          /* secondary text, captions */
+  --color-mute: #b7ac99;           /* disabled fills, unavailable states */
+  --color-scrim: color-mix(in srgb, var(--color-ink) 45%, transparent);
 
-  /* Typography Scale */
-  --text-display-xl: 2rem;
-  --text-display-xl--line-height: 2.375rem;
-  --text-display-lg: 1.625rem;
-  --text-display-lg--line-height: 2rem;
-  --text-heading-md: 1.25rem;
-  --text-heading-md--line-height: 1.75rem;
-  --text-heading-sm: 1.0625rem;
-  --text-heading-sm--line-height: 1.5rem;
-  --text-body-lg: 1.0625rem;
-  --text-body-lg--line-height: 1.625rem;
-  --text-body-md: 0.9375rem;
-  --text-body-md--line-height: 1.375rem;
-  --text-body-sm: 0.8125rem;
-  --text-body-sm--line-height: 1.125rem;
-  --text-label: 0.8125rem;
-  --text-label--line-height: 1rem;
-  --text-price-lg: 1.375rem;
-  --text-price-lg--line-height: 1.75rem;
-  --text-price-md: 0.9375rem;
-  --text-price-md--line-height: 1.25rem;
+  /* ── 4. Status ────────────────────────────────────────────────────────── */
+  --color-sale: #b3261e;           /* sale price, form errors */
+  --color-success: #2e7d4f;        /* in stock, delivered */
+  --color-success-tint: #e7f2eb;
+  --color-warning: #b87514;        /* genuine low-stock captions only */
 
-  /* Font Families */
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
-}
+  /* ── Placeholder fabric swatches (until real photography exists) ──────── */
+  --color-fabric-mustard: #d9a441;
+  --color-fabric-teapink: #e8b4b8;
+  --color-fabric-emerald: #2f6b4f;
+  --color-fabric-rust: #b4552d;
+  --color-fabric-sage: #9caf88;
+  --color-fabric-deepblue: #2c4770;
 
-:root {
-  /* Semantic Tokens */
-  --bg-page: var(--color-ivory-50);
-  --bg-surface: #FFFFFF;
-  --bg-surface-alt: var(--color-ivory-100);
-  --bg-brand: var(--color-maroon-700);
-  --bg-brand-hover: var(--color-maroon-800);
-  --bg-selected: var(--color-maroon-100);
-  
-  --text-primary: var(--color-ink-900);
-  --text-secondary: var(--color-ink-600);
-  --text-disabled: var(--color-ivory-400);
-  --text-on-brand: var(--color-ivory-50);
-  --text-brand: var(--color-maroon-700);
-  --text-price: var(--color-ink-900);
-  --text-price-sale: var(--color-danger);
-  --text-compare-at: var(--color-ink-600);
-  
-  --border-default: var(--color-ivory-200);
-  --border-focus: var(--color-maroon-500);
-  
-  --accent: var(--color-gold-500);
-  
-  --badge-new-bg: var(--color-maroon-100);
-  --badge-new-text: var(--color-maroon-800);
-  --badge-sale-bg: var(--color-danger-50);
-  --badge-sale-text: var(--color-danger);
-  --badge-soldout-bg: var(--color-ivory-200);
-  --badge-soldout-text: var(--color-ink-600);
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  /* Font files are loaded in src/styles/fonts.ts; swap families there. */
+  --font-display: var(--font-display-face), Georgia, serif;
+  --font-sans: var(--font-sans-face), system-ui, sans-serif;
+
+  --text-hero: 32px;
+  --text-hero--line-height: 38px;
+  --text-hero--letter-spacing: -0.01em;
+  --text-hero-lg: 44px;
+  --text-hero-lg--line-height: 52px;
+  --text-hero-lg--letter-spacing: -0.01em;
+  --text-title: 26px;
+  --text-title--line-height: 34px;
+  --text-title-lg: 32px;
+  --text-title-lg--line-height: 40px;
+  --text-section: 20px;
+  --text-section--line-height: 28px;
+  --text-section-lg: 24px;
+  --text-section-lg--line-height: 32px;
+  --text-group: 17px;
+  --text-group--line-height: 24px;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-ui: 14px;
+  --text-ui--line-height: 20px;
+  --text-caption: 13px;            /* nothing smaller than 13px anywhere */
+  --text-caption--line-height: 18px;
+  --text-label: 13px;
+  --text-label--line-height: 16px;
+  --text-label--letter-spacing: 0.04em;
+
+  /* ── Geometry ─────────────────────────────────────────────────────────── */
+  --radius-card: 8px;              /* cards, inputs, image blocks */
+  --radius-btn: 6px;               /* buttons */
+  --container-content: 1280px;
+
+  --shadow-card: 0 1px 2px color-mix(in srgb, var(--color-ink) 6%, transparent);
+  --shadow-pop: 0 8px 24px color-mix(in srgb, var(--color-ink) 10%, transparent);
+  --shadow-lift: 0 8px 20px color-mix(in srgb, var(--color-ink) 8%, transparent);
+  --shadow-panel: 0 0 40px color-mix(in srgb, var(--color-ink) 20%, transparent);
+  --shadow-toast: 0 4px 16px color-mix(in srgb, var(--color-ink) 25%, transparent);
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --animate-shimmer: shimmer 1.6s infinite;
+  --animate-fadein: fadein 0.2s ease;
+  --animate-slide-left: slide-left 0.25s ease;
+  --animate-slide-right: slide-right 0.25s ease;
+
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+  @keyframes fadein {
+    from { opacity: 0; }
+  }
+  @keyframes slide-left {
+    from { transform: translateX(-100%); }
+  }
+  @keyframes slide-right {
+    from { transform: translateX(100%); }
+  }
 }

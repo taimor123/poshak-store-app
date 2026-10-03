@@ -1,87 +1,167 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
-
-:root {
-  --background: var(--bg-page);
-  --foreground: var(--text-primary);
-  --card: var(--bg-surface);
-  --card-foreground: var(--text-primary);
-  --popover: var(--bg-surface);
-  --popover-foreground: var(--text-primary);
-  --primary: var(--bg-brand);
-  --primary-foreground: var(--text-on-brand);
-  --secondary: var(--bg-surface-alt);
-  --secondary-foreground: var(--text-primary);
-  --muted: var(--bg-surface-alt);
-  --muted-foreground: var(--text-secondary);
-  --accent: var(--bg-selected);
-  --accent-foreground: var(--text-brand);
-  --destructive: var(--color-danger);
-  --destructive-foreground: #FFFFFF;
-  --border: var(--border-default);
-  --input: var(--border-default);
-  --ring: var(--border-focus);
-  --radius: 0.625rem;
-  
-  --sidebar: var(--bg-surface);
-  --sidebar-foreground: var(--text-primary);
-  --sidebar-primary: var(--bg-brand);
-  --sidebar-primary-foreground: var(--text-on-brand);
-  --sidebar-accent: var(--bg-selected);
-  --sidebar-accent-foreground: var(--text-brand);
-  --sidebar-border: var(--border-default);
-  --sidebar-ring: var(--border-focus);
-}
+/*
+ * Shared component classes. Colours, type and radii all come from tokens.css;
+ * nothing here uses a raw hex value. Prefer the React components in
+ * src/components/ui — these classes exist so those components (and the odd
+ * Link that must look like a button) share one definition.
+ */
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line);
   }
   html {
-    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-page font-sans text-ink antialiased;
+    overflow-x: clip;
+  }
+  a {
+    @apply text-brand;
+  }
+  a:hover {
+    @apply text-brand-hover;
+  }
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  /* Focus ring on EVERY interactive element. Never remove. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .wrap { @apply mx-auto max-w-content px-4 md:px-6 lg:px-8; }
+
+  /* Headings (Fraunces is reserved for these + the wordmark) */
+  .h-hero { @apply font-display text-hero font-semibold text-pretty md:text-hero-lg; }
+  .h-page { @apply font-display text-title font-semibold text-pretty md:text-title-lg; }
+  .h-section { @apply font-display text-section font-semibold text-pretty md:text-section-lg; }
+  .eyebrow { @apply text-label font-semibold uppercase; }
+
+  /* Buttons — colours come from the --color-btn-* tokens */
+  .btn-primary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-btn bg-btn-primary px-6 py-3 text-body font-semibold text-btn-primary-text no-underline transition-colors;
+    @apply hover:bg-btn-primary-hover hover:text-btn-primary-text active:bg-btn-primary-pressed disabled:bg-btn-disabled;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-btn border-[1.5px] border-btn-secondary-border bg-btn-secondary-bg px-[22px] py-[11px] text-body font-semibold text-btn-secondary-text no-underline transition-colors;
+    @apply hover:bg-btn-secondary-hover hover:text-brand-hover;
+  }
+  .btn-outline-ivory {
+    @apply inline-flex min-h-12 items-center justify-center rounded-btn border-[1.5px] border-page px-6 py-[11px] text-body font-semibold text-page no-underline transition-colors;
+    @apply hover:bg-page/15 hover:text-page;
+  }
+  .tlink {
+    @apply inline-flex min-h-11 items-center bg-transparent px-0.5 text-body font-semibold text-brand no-underline;
+    @apply hover:text-brand-hover hover:underline hover:underline-offset-[3px];
+  }
+  .icon-btn {
+    @apply relative inline-flex size-11 flex-none items-center justify-center rounded-card text-ink;
+    @apply hover:bg-alt hover:text-ink disabled:opacity-40;
+  }
+
+  /* Navigation */
+  .navlink { @apply inline-flex min-h-11 items-center gap-1.5 rounded-btn px-3.5 py-[11px] text-body font-medium text-ink no-underline hover:bg-alt hover:text-ink; }
+  .navlink[data-active="true"] { @apply text-brand shadow-[inset_0_-2px_0_var(--color-brand)]; }
+  .menu-item { @apply block rounded-btn px-3.5 py-2.5 text-body text-ink no-underline hover:bg-alt hover:text-ink; }
+
+  /* Chips */
+  .chip { @apply inline-flex min-h-11 flex-none items-center gap-2 rounded-full border border-line bg-surface px-4 text-ui font-medium text-ink no-underline hover:border-line-strong hover:text-ink; }
+  .chip[data-on="true"] { @apply border-brand bg-selected text-brand; }
+  .size-chip {
+    @apply h-12 min-w-[52px] rounded-btn border border-line-strong bg-surface px-3 text-body font-medium text-ink hover:border-ink;
+    @apply disabled:border-line disabled:bg-page disabled:text-mute disabled:line-through;
+  }
+  .size-chip[data-on="true"] { @apply border-2 border-brand bg-selected font-semibold text-brand; }
+
+  /* Forms */
+  .input { @apply min-h-12 w-full rounded-card border border-line-strong bg-surface px-3.5 py-3 text-[16px] leading-[22px] text-ink placeholder:text-line-strong; }
+  .input[aria-invalid="true"] { @apply border-2 border-sale; }
+  .field-label { @apply mb-1.5 block text-ui font-medium text-ink; }
+
+  /* Surfaces */
+  .card-box { @apply rounded-card border border-line bg-surface; }
+  .seg { @apply inline-flex gap-0.5 rounded-card border border-line bg-surface p-[3px]; }
+  .seg > button { @apply min-h-[38px] rounded-btn px-3.5 text-ui font-medium text-ink-2; }
+  .seg > button[aria-pressed="true"] { @apply bg-selected font-semibold text-brand; }
+
+  /* Tables */
+  .tbl-wrap { @apply overflow-x-auto rounded-card border border-line bg-surface; }
+  .tbl { @apply w-full border-collapse text-body tabular-nums; }
+  .tbl th { @apply border-b border-line bg-alt px-3.5 py-[11px] text-left text-caption font-semibold whitespace-nowrap text-ink-2; }
+  .tbl td { @apply border-b border-line px-3.5 py-[11px] text-left whitespace-nowrap; }
+  .tbl tr:last-child td { @apply border-b-0; }
+
+  .price { @apply font-semibold tabular-nums; }
+
+  /* Skeleton: same box as the final content; shimmer stops for reduced motion. */
+  .sk { @apply relative overflow-hidden bg-line; }
+  .sk::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-page) 0%, transparent),
+      color-mix(in srgb, var(--color-page) 55%, transparent),
+      color-mix(in srgb, var(--color-page) 0%, transparent)
+    );
+  }
+
+  /* Product rail: snap-scroll with peek on mobile, 4-col grid on desktop. */
+  .rail {
+    @apply -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-1 pb-2;
+    @apply md:-mx-6 md:scroll-px-6 md:px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-x-5 lg:gap-y-7 lg:overflow-visible lg:p-0;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail > * { @apply snap-start; flex: 0 0 min(68vw, 260px); }
+  @media (min-width: 768px) { .rail > * { flex-basis: 280px; } }
+  @media (min-width: 1024px) { .rail > * { flex: none; } }
+
+  .grid-products { @apply grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 md:gap-x-5 md:gap-y-8; }
+  .grid-products[data-cols="4"] { @apply lg:grid-cols-4; }
+}
+
+/* Hover effects only on hover-capable desktop. */
+@media (hover: hover) and (min-width: 1024px) {
+  .card .card-img { transition: transform 0.35s ease; }
+  .card:hover .card-img { transform: scale(1.045); }
+  .card:hover .card-name { text-decoration: underline; text-underline-offset: 3px; }
+  .card:hover .qv,
+  .qv:focus-visible { opacity: 1; transform: none; }
+  .tile { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+  .tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+}
+@media (max-width: 1023px), (hover: none) {
+  .qv { display: none; }
+}
+
+/* Stretched link: whole card clickable, while heart/quick-view stay separate buttons. */
+.stretched::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: var(--radius-card); }
+.stretched:focus-visible { outline: none; }
+.stretched:focus-visible::after { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sk::after { display: none; animation: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
