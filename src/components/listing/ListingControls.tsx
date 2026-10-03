@@ -53,6 +53,8 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
     ...(f.inStock ? [{ label: 'In stock', next: { inStock: false } }] : []),
   ];
   const nFilters = chips.length - (f.sub ? 1 : 0);
+  // Keep active fabrics visible (count 0) even when the current results have none, so they can be unticked.
+  const fabricRows = [...fabricCounts, ...f.fabrics.filter((x) => !fabricCounts.some((c) => c.fabric === x)).map((fabric) => ({ fabric, count: 0 }))];
   const styles = plural(resultCount, 'style');
 
   return (
@@ -131,7 +133,7 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
           <div className="flex flex-1 flex-col gap-6 px-5 pt-2 pb-5 lg:p-0">
             <fieldset className="m-0 border-0 p-0">
               <legend className={legend}>Fabric</legend>
-              {fabricCounts.map(({ fabric, count }) => (
+              {fabricRows.map(({ fabric, count }) => (
                 <CheckRow
                   key={fabric}
                   type="checkbox"

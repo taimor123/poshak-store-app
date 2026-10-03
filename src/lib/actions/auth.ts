@@ -20,8 +20,9 @@ export async function signOut(): Promise<ApiResult<unknown>> {
   return api('/auth/logout', { method: 'POST', auth: true, setCookies: true });
 }
 
+/** Called once per page load; relays the API's rolling session refresh to the browser. */
 export async function getSessionUser(): Promise<SessionUser | null> {
-  const r = await api<{ user: SessionUser | null }>('/auth/session', { auth: true });
+  const r = await api<{ user: SessionUser | null }>('/auth/session', { auth: true, setCookies: true });
   return r.ok ? r.data.user : null;
 }
 

@@ -1,5 +1,5 @@
 import 'server-only';
-import { cookies } from 'next/headers';
+import { cookies, headers as requestHeaders } from 'next/headers';
 import { fail, type ApiResult, type ErrorCode } from './envelope';
 
 /**
@@ -11,6 +11,15 @@ import { fail, type ApiResult, type ErrorCode } from './envelope';
 
 const API_URL = (process.env.API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
 const FORWARDED_COOKIES = ['psk_session', 'psk_anon'];
+const PROXY_SECRET = process.env.INTERNAL_PROXY_SECRET;
+
+/** The shopper's IP, so the API rate-limits per shopper rather than per storefront server. */
+async function clientIpHeaders(): Promise<Record<string, string>> {
+  if (!PROXY_SECRET) return {};
+  const h = await requestHeaders();
+  const ip = h.get('x-forwarded-for')?.split(',')[0]?.trim() || h.get('x-real-ip')?.trim();
+  return ip ? { 'x-poshak-proxy-secret': PROXY_SECRET, 'x-poshak-client-ip': ip } : {};
+}
 
 type Options = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -31,6 +40,10 @@ export async function api<T>(path: string, opts: Options = {}): Promise<ApiResul
 
   const headers: Record<string, string> = { Accept: 'application/json', ...opts.headers };
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+  // Uncached calls (writes, per-shopper reads) carry the shopper's IP. Cached
+  // catalogue reads don't touch request headers, so those pages stay static.
+  const dynamic = opts.auth || (!!opts.method && opts.method !== 'GET');
+  if (dynamic) Object.assign(headers, await clientIpHeaders());
   if (opts.auth) {
     const jar = await cookies();
     const cookie = FORWARDED_COOKIES.flatMap((n) => {
@@ -46,7 +59,7 @@ export async function api<T>(path: string, opts: Options = {}): Promise<ApiResul
       method: opts.method ?? 'GET',
       headers,
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
-      ...(opts.auth || opts.method && opts.method !== 'GET' ? { cache: 'no-store' as const } : { next: { revalidate: opts.revalidate ?? 60 } }),
+      ...(dynamic ? { cache: 'no-store' as const } : { next: { revalidate: opts.revalidate ?? 60 } }),
     });
   } catch {
     return fail('INTERNAL', 'We can’t reach the store right now. Please try again in a moment.');
