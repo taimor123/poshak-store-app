@@ -42,7 +42,7 @@ export function ConfirmationView({ order: o, trackHref }: { order: OrderView; tr
           </h2>
           <NumberedSteps steps={next} className="gap-4" />
         </section>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <section aria-labelledby="to-h" className={card}>
             <h2 id="to-h" className={cap}>
               Delivering to

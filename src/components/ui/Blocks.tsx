@@ -18,7 +18,7 @@ export function SectionHeader({ id, title, action, className }: { id?: string; t
 /** "View all →" style link for SectionHeader. */
 export function SectionLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="py-2 text-body font-semibold text-brand no-underline hover:underline">
+    <Link href={href} className="inline-flex min-h-11 items-center text-body font-semibold text-brand no-underline hover:underline">
       {children}
     </Link>
   );
@@ -73,7 +73,7 @@ export function NumberedSteps({ steps, className }: { steps: { title: ReactNode;
   return (
     <ol className={cn('m-0 flex list-none flex-col gap-3 p-0', className)}>
       {steps.map((s, i) => (
-        <li key={i} className="grid grid-cols-[28px_1fr] gap-3">
+        <li key={i} className="grid grid-cols-[28px_minmax(0,1fr)] gap-3">
           <span className="size-7 rounded-full border-[1.5px] border-brand text-center text-caption leading-[25px] font-semibold text-brand">{i + 1}</span>
           <span className="flex flex-col gap-0.5 pt-[3px]">
             <span className="text-body font-semibold">{s.title}</span>

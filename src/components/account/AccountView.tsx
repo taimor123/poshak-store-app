@@ -94,7 +94,7 @@ export function AccountView({ initialTab, user, orders, addresses }: { initialTa
         {tab === 'track' && <TrackOrderForm />}
 
         {tab === 'addr' && (
-          <section role="tabpanel" aria-label="Addresses" className="mt-6 grid gap-3 sm:grid-cols-2">
+          <section role="tabpanel" aria-label="Addresses" className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {addresses.map((a) => (
               <div key={a.id} className="card-box flex flex-col gap-1 px-5 py-[18px] text-body">
                 <div className="flex items-center justify-between gap-2">

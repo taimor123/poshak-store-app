@@ -72,23 +72,23 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-y border-line py-2">
-        <div className="flex items-center gap-3">
+      <div className="mt-5 flex items-center justify-between gap-2 border-y border-line py-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <button type="button" className="btn-secondary min-h-11 px-4 lg:hidden" aria-expanded={open} onClick={() => setOpen(true)}>
             <FilterIcon />
             Filters{nFilters ? ` (${nFilters})` : ''}
           </button>
-          <span className="text-ui text-ink-2" aria-live="polite">
+          <span className="truncate text-ui text-ink-2" aria-live="polite">
             {styles}
           </span>
         </div>
-        <label className="flex items-center gap-2 text-ui text-ink-2">
+        <label className="flex flex-none items-center gap-2 text-ui text-ink-2">
           <span className="hidden min-[420px]:inline">Sort</span>
           <select
             aria-label="Sort"
             value={f.sort}
             onChange={(e) => go({ sort: e.target.value as SortKey })}
-            className="min-h-11 max-w-[180px] cursor-pointer rounded-card border border-line-strong bg-surface px-2.5 text-ui font-medium text-ink"
+            className="min-h-11 w-[132px] cursor-pointer min-[420px]:w-auto min-[420px]:max-w-[180px] rounded-card border border-line-strong bg-surface px-2.5 text-ui font-medium text-ink"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -102,7 +102,7 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
       {chips.length > 0 && (
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
           {chips.map((c) => (
-            <button key={c.label} type="button" className="chip min-h-9 border-line bg-alt px-3" onClick={() => go(c.next)} aria-label={`Remove filter: ${c.label}`}>
+            <button key={c.label} type="button" className="chip min-h-11 border-line bg-alt px-3 lg:min-h-9" onClick={() => go(c.next)} aria-label={`Remove filter: ${c.label}`}>
               {c.label}
               <CloseIcon size={14} />
             </button>
@@ -113,7 +113,7 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
         </div>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:items-start lg:gap-10">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:items-start lg:gap-10">
         {open && <div className="fixed inset-0 z-84 bg-scrim lg:hidden" aria-hidden="true" onClick={() => setOpen(false)} />}
         <aside
           ref={panel}
@@ -171,7 +171,7 @@ export function ListingControls({ basePath, filters: f, subs, fabricCounts, hasS
               <CheckRow type="checkbox" label="In stock only" checked={f.inStock} onChange={() => go({ inStock: !f.inStock })} />
             </fieldset>
           </div>
-          <div className="sticky bottom-0 grid grid-cols-[1fr_1.4fr] gap-2.5 border-t border-line bg-surface px-5 py-4 lg:hidden">
+          <div className="sticky bottom-0 grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-2.5 border-t border-line bg-surface px-5 py-4 lg:hidden">
             <button type="button" className="btn-secondary" onClick={clearAll}>
               Clear
             </button>

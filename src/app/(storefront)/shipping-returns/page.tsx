@@ -50,7 +50,7 @@ export default async function ShippingReturnsPage() {
           <h2 id="c-h" className="h-section">
             Charges
           </h2>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <InfoCard title="Standard">{`Free over ${free}. ${standard} below that.`}</InfoCard>
             <InfoCard title="Express">{`${express} on any order. ${expressCities}.`}</InfoCard>
             <InfoCard title="Cash on delivery">No extra fee. Keep the exact amount ready; riders may not carry change.</InfoCard>

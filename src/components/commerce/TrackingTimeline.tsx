@@ -11,7 +11,7 @@ export function TrackingTimeline({ step, dates }: { step: number; dates: string[
         const current = k === step;
         const filled = reached && !(current && step < DELIVERED_STEP);
         return (
-          <li key={label} className="grid grid-cols-[20px_1fr] gap-3">
+          <li key={label} className="grid grid-cols-[20px_minmax(0,1fr)] gap-3">
             <span className="flex flex-col items-center">
               <span className={cn('mt-1 size-3.5 rounded-full border-2', reached ? 'border-brand' : 'border-mute', filled ? 'bg-brand' : 'bg-surface')} />
               <span className={cn('min-h-[18px] w-0.5 flex-1', k === DELIVERED_STEP ? 'bg-transparent' : k < step ? 'bg-brand' : 'bg-line')} />

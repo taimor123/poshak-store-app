@@ -42,7 +42,10 @@
 }
 
 @layer components {
-  .wrap { @apply mx-auto max-w-content px-4 md:px-6 lg:px-8; }
+  /* Page container. w-full is essential: inside flex columns (body, main) auto margins
+     disable stretching, and the container would otherwise grow to its widest
+     unbreakable child (chip rows, carousels) and overflow the phone screen. */
+  .wrap { @apply mx-auto w-full max-w-content px-4 md:px-6 lg:px-8; }
 
   /* Headings (Fraunces is reserved for these + the wordmark) */
   .h-hero { @apply font-display text-hero font-semibold text-pretty md:text-hero-lg; }
@@ -94,7 +97,7 @@
   /* Surfaces */
   .card-box { @apply rounded-card border border-line bg-surface; }
   .seg { @apply inline-flex gap-0.5 rounded-card border border-line bg-surface p-[3px]; }
-  .seg > button { @apply min-h-[38px] rounded-btn px-3.5 text-ui font-medium text-ink-2; }
+  .seg > button { @apply min-h-11 md:min-h-[38px] rounded-btn px-3.5 text-ui font-medium text-ink-2; }
   .seg > button[aria-pressed="true"] { @apply bg-selected font-semibold text-brand; }
 
   /* Tables */

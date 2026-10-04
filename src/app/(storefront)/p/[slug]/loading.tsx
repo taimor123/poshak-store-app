@@ -5,7 +5,7 @@ export default function Loading() {
   return (
     <div className="wrap pt-2" aria-busy="true">
       <Skeleton className="my-3 h-[18px] w-56 rounded" />
-      <div className="mt-2 grid gap-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-12">
+      <div className="mt-2 grid grid-cols-1 gap-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-12">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className={`rounded-card ${i > 0 ? 'hidden lg:block' : ''}`} style={{ aspectRatio: '3/4' }} />

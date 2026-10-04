@@ -33,7 +33,7 @@ export function CartView({ freeShippingThresholdPaisa, standardFeePaisa }: { fre
       <h1 className="h-page m-0">Your cart</h1>
       <section aria-label="Cart items" aria-busy={!loaded} className="mt-6">
         {!loaded ? (
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12" aria-hidden="true">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12" aria-hidden="true">
             <div className="flex flex-col gap-4">
               <Skeleton className="h-[162px] rounded-card" />
               <Skeleton className="h-[162px] rounded-card" />
@@ -43,7 +43,7 @@ export function CartView({ freeShippingThresholdPaisa, standardFeePaisa }: { fre
         ) : cart.lines.length === 0 ? (
           <EmptyState title="Your cart is empty" body="Nothing here yet. This week’s arrivals are a good place to start." action={<ButtonLink href={routes.category('new')}>Shop new arrivals</ButtonLink>} />
         ) : (
-          <div className="grid animate-fadein gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
+          <div className="grid animate-fadein grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
             <div className="flex flex-col border-t border-line">
               {cart.lines.map((l) => {
                 const notice = lineNotice(l);

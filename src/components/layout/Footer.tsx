@@ -8,14 +8,14 @@ import { toast } from '@/stores/ui';
 import { Logo } from './Logo';
 
 const heading = 'mb-2 text-label font-semibold uppercase text-page/60';
-const link = 'inline-block py-2 text-body text-page/85 no-underline hover:text-page hover:underline hover:underline-offset-[3px]';
+const link = 'inline-flex min-h-11 items-center text-body text-page/85 no-underline hover:text-page hover:underline hover:underline-offset-[3px]';
 
 export function Footer() {
   return (
     <footer className="mt-14 bg-band text-page">
       <div className="wrap pt-12 pb-6">
-        <div className="grid gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:gap-6">
-          <div>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] md:gap-6">
+          <div className="col-span-2 md:col-span-1">
             <Logo size="footer" />
             <p className="m-0 mt-2 text-ui text-page/75">{siteConfig.tagline}</p>
           </div>

@@ -14,7 +14,7 @@ export function Hero() {
   return (
     <section aria-label="Featured">
       <div className="wrap pt-7 pb-4">
-        <div className="grid gap-7 md:grid-cols-[5fr_6fr] md:items-center md:gap-12">
+        <div className="grid grid-cols-1 gap-7 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:items-center md:gap-12">
           <div className="flex flex-col items-start justify-center gap-4">
             <p className="eyebrow m-0 text-brand">Lawn ’26 has arrived</p>
             <h1 className="h-hero m-0">Stitched to your measurements, honest to the thread.</h1>
@@ -31,6 +31,8 @@ export function Hero() {
               swatch="mustard" 
               ratio="4/5" 
               motif="42%" 
+              // Phones: cap the height so the headline and CTA show above the fold.
+              className="max-md:mx-auto max-md:max-h-[46svh]"
               alt="Lawn ’26 collection model in mustard yellow shalwar kameez" 
               image={{ url: '/products/gulnar-1.png', alt: 'Lawn ’26 collection model in mustard yellow shalwar kameez' }} 
             />
@@ -50,7 +52,7 @@ export function CategoryTiles() {
           Shop by category
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 [&>*:nth-child(3)]:col-span-2 md:[&>*:nth-child(3)]:col-span-1">
-          {CATEGORY_KEYS.map((key) => {
+          {CATEGORY_KEYS.map((key, i) => {
             const c = CATEGORIES[key];
             const catImages: Record<string, string> = {
               'unstitched': '/products/rania-1.png',
@@ -60,7 +62,8 @@ export function CategoryTiles() {
             const imageUrl = catImages[key];
             return (
               <Link key={key} href={routes.category(key)} className="tile flex flex-col gap-2.5 rounded-card text-ink no-underline hover:text-ink">
-                <ProductImage swatch={c.swatch} alt={`${c.name} category`} image={imageUrl ? { url: imageUrl, alt: `${c.name} category image` } : null} />
+                {/* The third tile spans both phone columns — keep it landscape-ish so it isn't screen-high. */}
+                <ProductImage swatch={c.swatch} className={i === 2 ? 'max-md:aspect-[16/10]!' : undefined} alt={`${c.name} category`} image={imageUrl ? { url: imageUrl, alt: `${c.name} category image` } : null} />
                 <span className="flex flex-col gap-0.5 px-0.5">
                   <span className="text-group font-semibold">{c.name}</span>
                   <span className="text-caption text-ink-2">from {formatPKR(c.fromPaisa)}</span>
@@ -85,7 +88,7 @@ export function FitTrustBand() {
         <p className="m-0 mt-3 max-w-[62ch] text-[15px] leading-6 text-ink-2">
           Every stitched piece lists real garment measurements in inches — chest, waist, length — not just S/M/L. Unstitched suits list exact fabric yardage per piece.
         </p>
-        <div className="mt-7 grid gap-[18px] md:grid-cols-3 md:gap-6">
+        <div className="mt-7 grid grid-cols-1 gap-[18px] md:grid-cols-3 md:gap-6">
           <IconFeature icon={RulerIcon}>Real measurement charts</IconFeature>
           <IconFeature icon={BoxIcon}>Honest stock — no fake scarcity</IconFeature>
           <IconFeature icon={ChatIcon}>Easy size help on WhatsApp</IconFeature>

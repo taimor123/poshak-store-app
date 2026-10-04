@@ -51,7 +51,7 @@ export function ProductPurchase({ product: p, maxQtyPerLine, lowStockThreshold }
             <span id="size-label" className="text-body font-semibold">
               Size {size && <span className="font-normal text-ink-2">· {size}</span>}
             </span>
-            <Link href={routes.sizeGuide} className="text-ui font-semibold text-brand no-underline hover:underline">
+            <Link href={routes.sizeGuide} className="inline-flex min-h-11 items-center text-ui font-semibold text-brand no-underline hover:underline">
               Size guide
             </Link>
           </div>

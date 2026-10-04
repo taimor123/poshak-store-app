@@ -150,7 +150,7 @@ export function CheckoutView({ layout, zones, freeShippingThresholdPaisa, expres
       </div>
 
       {!loaded ? (
-        <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12" aria-busy="true">
+        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12" aria-busy="true">
           <Skeleton className="h-[420px] rounded-card" />
           <Skeleton className="h-[260px] rounded-card" />
         </div>
@@ -166,7 +166,7 @@ export function CheckoutView({ layout, zones, freeShippingThresholdPaisa, expres
               {banner}
             </p>
           )}
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
+          <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
             <form onSubmit={submit} noValidate className="order-1 flex flex-col gap-7">
               {showAddress && <AddressSection value={form} errors={errors} cities={zones.map((z) => z.city)} onChange={setAddress} />}
               {showDelivery && (

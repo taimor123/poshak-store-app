@@ -53,7 +53,7 @@ export function AddressSection({ value: f, errors, cities, onChange }: { value: 
       />
       <TextField id="f-email" label="Email" type="email" autoComplete="email" value={f.email} onChange={set('email')} error={errors.email} hint="For your receipt and a link to track the order." />
       <TextField id="f-address" label="Address" autoComplete="street-address" placeholder="House number, street, area" value={f.address} onChange={set('address')} error={errors.address} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <SelectField id="f-city" label="City" placeholder="Select your city" options={cities} value={f.city} onChange={set('city')} error={errors.city} />
         <TextField id="f-notes" label="Nearest landmark" optional="optional" placeholder="Helps the rider find you" maxLength={200} value={f.notes} onChange={set('notes')} error={errors.notes} />
       </div>

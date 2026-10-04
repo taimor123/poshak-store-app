@@ -38,9 +38,9 @@ export default async function ProductPage({ params }: Props) {
   return (
     <div className="wrap pt-2">
       <Breadcrumb items={crumbs} />
-      <section aria-label="Product" className="mt-2 grid gap-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
+      <section aria-label="Product" className="mt-2 grid grid-cols-1 gap-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
         <ProductGallery product={p} />
-        <div className="flex flex-col gap-[22px] lg:sticky lg:top-[88px]">
+        <div className="flex min-w-0 flex-col gap-[22px] lg:sticky lg:top-[88px]">
           <div className="flex flex-col gap-2">
             {p.badge && <span className="self-start rounded-full bg-selected px-2.5 py-[5px] text-label font-semibold text-brand uppercase">{p.badge === 'NEW' ? 'New' : 'Sale'}</span>}
             <div className="flex items-start gap-2">

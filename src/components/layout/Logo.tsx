@@ -4,7 +4,7 @@ import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/cn';
 
 const SIZES = {
-  header: 'text-[26px]',
+  header: 'text-[22px] min-[360px]:text-[26px]',
   drawer: 'text-[22px]',
   footer: 'text-[24px]',
 } as const;

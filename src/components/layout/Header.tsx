@@ -32,7 +32,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-60 border-b border-line bg-surface">
-        <div className="wrap flex min-h-16 items-center gap-0.5">
+        <div className="wrap flex min-h-16 items-center gap-0.5 max-[359px]:px-2">
           <IconButton label="Open menu" className="lg:hidden" onClick={() => setMenuOpen(true)}>
             <MenuIcon />
           </IconButton>

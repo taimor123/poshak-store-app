@@ -28,7 +28,7 @@ export default function SizeGuidePage() {
           <h2 id="m-h" className="h-section">
             How to measure yourself
           </h2>
-          <ol className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          <ol className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
             {HOW_TO_MEASURE.map(([title, body], i) => (
               <li key={title}>
                 <InfoCard title={`${i + 1}. ${title}`}>{body}</InfoCard>
