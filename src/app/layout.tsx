@@ -19,8 +19,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`}>
-      <body className="flex min-h-screen flex-col">
+    // suppressHydrationWarning: browser extensions (ColorZilla, Grammarly, password
+    // managers…) inject attributes into <html>/<body> before React loads. This only
+    // ignores attribute differences on these two tags, not on anything inside them.
+    <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`} suppressHydrationWarning>
+      <body className="flex min-h-screen flex-col" suppressHydrationWarning>
         {children}
         <Toaster />
         <StoreHydrator />

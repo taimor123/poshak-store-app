@@ -27,7 +27,13 @@ export function Hero() {
             </div>
           </div>
           <div className="order-first md:order-last">
-            <ProductImage swatch="mustard" ratio="4/5" motif="42%" alt="Placeholder visual: kameez line drawing on mustard" />
+            <ProductImage 
+              swatch="mustard" 
+              ratio="4/5" 
+              motif="42%" 
+              alt="Lawn ’26 collection model in mustard yellow shalwar kameez" 
+              image={{ url: '/products/gulnar-1.png', alt: 'Lawn ’26 collection model in mustard yellow shalwar kameez' }} 
+            />
           </div>
         </div>
       </div>
@@ -46,9 +52,15 @@ export function CategoryTiles() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 [&>*:nth-child(3)]:col-span-2 md:[&>*:nth-child(3)]:col-span-1">
           {CATEGORY_KEYS.map((key) => {
             const c = CATEGORIES[key];
+            const catImages: Record<string, string> = {
+              'unstitched': '/products/rania-1.png',
+              'ready-to-wear': '/products/noor-1.png',
+              'formals': '/products/zeenat-1.png'
+            };
+            const imageUrl = catImages[key];
             return (
               <Link key={key} href={routes.category(key)} className="tile flex flex-col gap-2.5 rounded-card text-ink no-underline hover:text-ink">
-                <ProductImage swatch={c.swatch} alt={`${c.name}: placeholder kameez line drawing`} />
+                <ProductImage swatch={c.swatch} alt={`${c.name} category`} image={imageUrl ? { url: imageUrl, alt: `${c.name} category image` } : null} />
                 <span className="flex flex-col gap-0.5 px-0.5">
                   <span className="text-group font-semibold">{c.name}</span>
                   <span className="text-caption text-ink-2">from {formatPKR(c.fromPaisa)}</span>

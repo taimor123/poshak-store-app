@@ -1,7 +1,11 @@
 """
-Generates AI demo product images for the 16 seeded DEMO products using
-Pollinations (https://pollinations.ai — free, no key). Output:
-public/products/{slug}-{1..3}.jpg, 3:4, watermark cropped off.
+Generates AI demo product images for the 16 seeded DEMO products with FLUX.1
+[schnell] via the public Hugging Face Space (no account needed; anonymous use
+has a daily GPU quota — rerun later to fill in any gaps). Output:
+public/products/{slug}-{1..3}.jpg, 3:4.
+
+Then attach them in poshak-store-apis:
+    npm run db:attach-images -- ../poshak-store-app/public/products
 
 DEMO ONLY: replace with real photography before launch (the PDP promises
 "photographed in daylight without filters").
@@ -9,12 +13,12 @@ DEMO ONLY: replace with real photography before launch (the PDP promises
     python scripts/generate-demo-images.py            # missing images only
     python scripts/generate-demo-images.py --force    # regenerate all
 
-Pollinations' anonymous tier is now rate-limited/paywalled and ignores the
-model choice. Set POLLINATIONS_TOKEN (an API key from pollinations.ai) in your
-environment to use an authenticated, higher-quality tier.
+Alternative backend: set POLLINATIONS_TOKEN (an API key from pollinations.ai)
+to use Pollinations instead (its anonymous tier is paywalled).
 """
 import os
 import io
+import json
 import sys
 import time
 import urllib.parse
@@ -67,7 +71,43 @@ def prompts(desc: str, kind: str) -> list[str]:
     ]
 
 
+HF_SPACE = "https://black-forest-labs-flux-1-schnell.hf.space"
+
+
+def fetch_hf(prompt: str, seed: int) -> Image.Image:
+    """Gradio API: POST /call/infer → event id → SSE stream → file URL."""
+    body = json.dumps({"data": [prompt, seed, False, W, H, 4]}).encode()
+    req = urllib.request.Request(f"{HF_SPACE}/gradio_api/call/infer", data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        event_id = json.load(r)["event_id"]
+    with urllib.request.urlopen(f"{HF_SPACE}/gradio_api/call/infer/{event_id}", timeout=300) as r:
+        stream = r.read().decode()
+    event = data = None
+    for line in stream.splitlines():
+        if line.startswith("event:"):
+            event = line[6:].strip()
+        elif line.startswith("data:"):
+            data = line[5:].strip()
+    if event != "complete" or not data:
+        raise RuntimeError(f"Space returned {event}: {data}")
+    url = json.loads(data)[0]["url"]
+    with urllib.request.urlopen(url, timeout=120) as r:
+        return Image.open(io.BytesIO(r.read())).convert("RGB")
+
+
 def fetch(prompt: str, seed: int) -> Image.Image:
+    if not os.environ.get("POLLINATIONS_TOKEN"):
+        for attempt in range(3):
+            try:
+                return fetch_hf(prompt, seed)
+            except Exception as e:  # noqa: BLE001
+                print(f"   retry {attempt + 1}: {e}")
+                time.sleep(10 * (attempt + 1))
+        raise RuntimeError("giving up (Hugging Face quota may be used up — rerun later; existing images are kept)")
+    return fetch_pollinations(prompt, seed)
+
+
+def fetch_pollinations(prompt: str, seed: int) -> Image.Image:
     url = "https://image.pollinations.ai/prompt/" + urllib.parse.quote(prompt) + f"?width={W}&height={H}&seed={seed}&nologo=true&model=flux"
     for attempt in range(4):
         try:
@@ -84,9 +124,10 @@ def fetch(prompt: str, seed: int) -> Image.Image:
 
 
 def finish(img: Image.Image) -> Image.Image:
-    """Crop off the bottom-right watermark band, then centre-crop to 3:4 and resize."""
+    """Centre-crop to 3:4 and resize (Pollinations: crop its watermark band first)."""
     w, h = img.size
-    img = img.crop((0, 0, w, int(h * 0.93)))
+    if os.environ.get("POLLINATIONS_TOKEN"):
+        img = img.crop((0, 0, w, int(h * 0.93)))
     w, h = img.size
     tw = int(h * 3 / 4)
     if tw <= w:
@@ -109,8 +150,12 @@ def main():
             path = OUT / f"{slug}-{n}.jpg"
             if path.exists() and not force:
                 continue
-            print(f"{slug}-{n}")
-            finish(fetch(prompt, seed=1000 + i * 10 + n)).save(path, "JPEG", quality=82, optimize=True, progressive=True)
+            print(f"{slug}-{n}", flush=True)
+            try:
+                finish(fetch(prompt, seed=1000 + i * 10 + n)).save(path, "JPEG", quality=84, optimize=True, progressive=True)
+            except RuntimeError as e:
+                print(f"stopped: {e}")
+                return
             time.sleep(2)  # be polite to a free service
     print("done")
 
